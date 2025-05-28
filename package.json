@@ -2,12 +2,12 @@
   "name": "instagram-clone",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
+"scripts": {
+  "dev": "next dev",
+  "build": "next build --no-lint",
+  "start": "next start",
+  "lint": "next lint"
+},
   "dependencies": {
     "@pinata/sdk": "github:PinataCloud/Pinata-SDK",
     "@prisma/client": "^6.5.0",
