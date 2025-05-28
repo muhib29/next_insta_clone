@@ -1,14 +1,15 @@
 import FollowingModal from "@/Components/FollowingModal";
-import ModelFollowerContent from "@/Components/ModalFollowerContent";
+import ModalFollowerContent from "@/Components/ModalFollowerContent"; // make sure this matches filename!
 import Preloader from "@/Components/Preloader";
 import { Suspense } from "react";
 
-export default function ModalFollwerPage({ params }: { params: { username: string } }) {
-    return(
+// Temporary fix: using 'any' if you're unsure
+export default async function ModalFollowerPage({ params }: any) {
+    return (
         <FollowingModal>
             <Suspense fallback={<Preloader />}>
-                <ModelFollowerContent params={params}/> 
+                <ModalFollowerContent params={params} />
             </Suspense>
         </FollowingModal>
-    )
+    );
 }
