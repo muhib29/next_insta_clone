@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic"; // 👈 prevents static pre-rendering
+export const dynamic = "force-dynamic"; 
 
 import PostGrid from "@/Components/PostsGrid";
 import { prisma } from "@/db";
