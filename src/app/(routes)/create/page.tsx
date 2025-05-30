@@ -50,6 +50,7 @@ export default function CreatePage() {
               alt="Post image" 
               width={500} 
               height={500} 
+              
             />
           )}
                         

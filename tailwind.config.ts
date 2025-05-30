@@ -1,17 +1,16 @@
+import type { Config } from "tailwindcss";
+
 const config: Config = {
   darkMode: "class",
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    // other paths...
   ],
   theme: {
-    extend: {
-      colors: {
-        'ig-red': "var(--red)",
-        'ig-orange': "var(--orange)",
-      },
-    },
+    extend: {},
   },
   plugins: [],
 };
+
+export default config;

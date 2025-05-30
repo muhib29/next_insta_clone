@@ -52,6 +52,7 @@ export default function DesktopNav({
               alt="Logo"
               width={32}  // Define width to avoid layout shifts
               height={32} // Define height to avoid layout shifts
+   
             />
           ) : (
             <Image
@@ -60,6 +61,7 @@ export default function DesktopNav({
               alt="Logo"
               width={128}  // Define width to avoid layout shifts
               height={128} // Define height to avoid layout shifts
+              
             />
           )}
       </Link>

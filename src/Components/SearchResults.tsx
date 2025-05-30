@@ -5,6 +5,13 @@ import PostGrid from "./PostsGrid";
 import Image from "next/image";
 import Link from "next/link";
 
+type ExtendedPost = Post & {
+  _count: {
+    likes: number;
+    comments: number;
+  };
+};
+
 export default function SearchResults({
   query,
   profiles,
@@ -13,9 +20,9 @@ export default function SearchResults({
 }: {
   query: string;
   profiles: Profile[];
-  posts: Post[];
+  posts: ExtendedPost[];
   onCancel: () => void;
-}) {
+}) {  
   return (
     <div className="p-6 w-full  shadow-md bg-white text-black dark:bg-black dark:text-white">
       <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-6 border-b border-gray-300 dark:border-gray-700 pb-2">
@@ -45,6 +52,7 @@ export default function SearchResults({
                     width={48}
                     height={48}
                     className="object-cover w-full h-full"
+                    
                   />
                 </div>
                 <div>

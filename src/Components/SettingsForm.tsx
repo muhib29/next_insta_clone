@@ -62,9 +62,10 @@ export default function SettingsForm({ profile }: { profile: Profile | null }) {
         src={avatarUrl}
         alt="Avatar"
         className="w-full h-full object-cover"
-        layout="intrinsic"  // This helps maintain aspect ratio
+        // layout="intrinsic"  // This helps maintain aspect ratio
         width={96} // Adjust size (24 * 4 = 96px)
         height={96} // Adjust size (24 * 4 = 96px)
+        
       />
     )}
 </div>

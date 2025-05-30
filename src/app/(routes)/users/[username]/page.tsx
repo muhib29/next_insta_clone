@@ -2,16 +2,11 @@ import { getSessionEmail } from "@/action";
 import ProfilePageContent from "@/Components/ProfilePageContent";
 import { prisma } from "@/db";
 
-interface UserProfilePageProps {
-  params: {
-    username: string;
-  };
-}
-
-export default async function UserProfilePage({ params }: UserProfilePageProps) {
+export default async function UserProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const sessionEmail = await getSessionEmail() || '';
+    const { username } = await params;  // await the promise
   const profile = await prisma.profile.findFirstOrThrow({
-    where: { username: params.username },
+    where: { username},
   });
 
   const ourFollow = await prisma.follower.findFirst({

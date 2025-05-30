@@ -32,6 +32,9 @@ export default function SinglePostContent({
           layout="fill" // Makes the image take up the full space of its parent container
           objectFit="contain" // Ensures the image will be contained without cropping
           quality={100} // Optional: You can set the quality of the image (default is 75)
+          //  width={600} 
+              // height={400} 
+          
         />
       </div>
 

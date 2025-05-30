@@ -17,7 +17,15 @@ export default async function BookMarkPage(){
     });
     const posts = await prisma.post.findMany({
       where: {id: {in: bookmarks.map(b => b.postId)}},
-    })
+    include: {
+    _count: {
+      select: {
+        likes: true,
+        comments: true,
+      },
+    },
+  },
+});
 
     const [postCount, followersCount, followingCount] = await Promise.all([
       prisma.post.count({

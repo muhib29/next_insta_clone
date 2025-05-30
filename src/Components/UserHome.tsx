@@ -8,20 +8,32 @@ import Link from "next/link";
 import BookMarkButton from "./BookmarkButton";
 import Image from "next/image";
 
+
 export default async function UserHome({
   profiles,
 }: {
   profiles: Profile[];
 }) {
-  const posts = await prisma.post.findMany({
-    where: {
-      author: { in: profiles.map((p) => p.email) },
+
+
+const posts = await prisma.post.findMany({
+  where: {
+    author: { in: profiles.map((p) => p.email) }, // or adjust as needed
+  },
+  orderBy: {
+    createdAt: "desc",
+  },
+  take: 100,
+  include: {
+    _count: {
+      select: {
+        comments: true,
+        likes: true,
+      },
     },
-    orderBy: {
-      createdAt: "desc",
-    },
-    take: 100,
-  });
+  },
+});
+
 
   const likes = await prisma.like.findMany({
     where: {
@@ -67,7 +79,7 @@ export default async function UserHome({
 
         {/* Image */}
         <div className="relative">
-        <Link href={`/posts/${post.id}`}>
+         <Link href={`/posts/${post.id}`}>
           <div className="w-full h-[500px] relative">
           <Image
             src={post.image}
@@ -77,8 +89,7 @@ export default async function UserHome({
             objectFit="cover"
           />
         </div>
-</Link>
-
+      </Link>
         </div>
 
         {/* Icons */}

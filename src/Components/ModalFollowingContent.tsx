@@ -75,7 +75,7 @@ export default async function ModelFollowingContent({ username }: { username: st
                  className="w-full h-full object-cover"
                  width={40}  
                  height={40} 
-                 layout="intrinsic"  
+                 
                />
                 )}
               </div>

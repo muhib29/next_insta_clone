@@ -4,11 +4,12 @@ import Preloader from "@/Components/Preloader";
 import { Suspense } from "react";
 
 // Temporary fix: using 'any' if you're unsure
-export default async function ModalFollowerPage({ params }: any) {
+export default async function ModalFollowerPage({ params }: { params: Promise<{ username: string }> }) {
+    const { username } = await params;
     return (
         <FollowingModal>
             <Suspense fallback={<Preloader />}>
-                <ModalFollowerContent params={params} />
+                <ModalFollowerContent username={username} />
             </Suspense>
         </FollowingModal>
     );
