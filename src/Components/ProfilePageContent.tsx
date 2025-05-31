@@ -27,16 +27,17 @@ export default async function ProfilePageContent({
     }),
   ]);
   return (
-<main>
-<ProfilePageInfo
-    profile={profile}
-    isOurProfile={isOurProfile}
-    ourFollow={ourFollow} 
-    stats={{ postCount, followersCount, followingCount }}
-/>
+    <main>
+      <ProfilePageInfo
+          profile={profile}
+          isOurProfile={isOurProfile}
+          ourFollow={ourFollow} 
+          stats={{ postCount, followersCount, followingCount }}
+      />
       <ProfileNav
-        username={profile.username || ''}
-        isOurProfile={isOurProfile} />
+        username={profile.username || profile.email.split('@')[0]} // fallback to email username
+        isOurProfile={isOurProfile}
+      />
       <section className="mt-4">
         <Suspense fallback={<Preloader />}>
           <ProfilePosts email={profile.email}/>

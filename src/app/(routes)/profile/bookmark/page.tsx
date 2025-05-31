@@ -48,10 +48,17 @@ export default async function BookMarkPage(){
             stats={{ postCount, followersCount, followingCount }}
             />
           <ProfileNav
-            username={profile.username || ''}
-            isOurProfile={true} />
+            username={profile.username || profile.email.split('@')[0]}
+            isOurProfile={true}
+          />
           <div className="mt-4">
-            <PostGrid posts={posts} />
+            {posts.length > 0 ? (
+              <PostGrid posts={posts} />
+            ) : (
+              <div className="text-center text-gray-500 dark:text-gray-400 mt-10">
+                You haven&apos;t bookmarked any posts yet.
+              </div>
+            )}
           </div>
         </div>
       );

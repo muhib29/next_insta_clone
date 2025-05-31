@@ -13,11 +13,12 @@ export default async function ProfilePosts({ email }: { email: string }) {
       },
     },
   });
-  // If no posts found, you can return a fallback message
+
   if (posts.length === 0) {
-    return <p>No posts found.</p>;
+    return <div className="text-center text-gray-500 dark:text-gray-400 mt-10">
+      You haven&apos;t posted anything yet.
+    </div>
   }
 
-  // Pass the posts to the PostGrid component
   return <PostGrid posts={posts} />;
 }

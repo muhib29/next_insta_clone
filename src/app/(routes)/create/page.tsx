@@ -2,16 +2,16 @@
 import { Button, TextArea } from "@radix-ui/themes";
 import { CloudUploadIcon, SendIcon } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 import { postEntry } from "@/action";
 import Image from "next/image";
 
 export default function CreatePage() {
-    const [imageUrl, setImageUrl] = useState('');
-    const [file, setFile] = useState<File|null>(null);
-    const [isUploading, setIsUploading] = useState(false);
-    const fileInRef = useRef<HTMLInputElement>(null);
-    const router = useRouter();
+  const [imageUrl, setImageUrl] = useState('');
+  const [file, setFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (file) {
@@ -30,68 +30,64 @@ export default function CreatePage() {
     }
   }, [file]);
 
-  return ( 
-    <form  className="max-w-md mx-auto" action={async data => {
-        const id = await postEntry(data);
-        router.push(`/posts/${id}`);
-        router.refresh(); 
+  return (
+    <form className="max-w-md mx-auto" action={async data => {
+      const id = await postEntry(data);
+      router.push(`/posts/${id}`);
+      router.refresh();
     }} >
       <input type="hidden" name="image" value={imageUrl} />
       <div className="flex flex-col gap-4">
         <div>
-          <div className="min-h-64 p-2 mb-5 bg-gray-200 rounded-md relative">
-            {/* Image preview placeholder */}
-            <div className="rounded-md w-full h-64 bg-gray-300 flex items-center justify-center text-gray-600 text-sm">
-            <div className="min-h-64 p-2  bg-gray-400 rounded-md relative">
-            {imageUrl && (
-            <Image 
-              src={imageUrl} 
-              className="rounded-md" 
-              alt="Post image" 
-              width={500} 
-              height={500} 
-              
-            />
-          )}
-                        
-            </div>
-
-            <div className="absolute inset-0 flex items-center justify-center">
+          <div className="relative w-full h-64 bg-gray-200 rounded-md overflow-hidden">
+            {imageUrl ? (
+              <Image
+                src={imageUrl}
+                alt="Uploaded image"
+                fill
+                className="object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-gray-500">
+                No image selected
+              </div>
+            )}
+            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40">
               <input
-                className="hidden"
                 type="file"
+                className="hidden"
                 ref={fileInRef}
-                onChange={ev => setFile(ev.target.files?.[0] || null)}
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
                 accept="image/*"
                 name="file"
               />
               <Button
                 disabled={isUploading}
-                onClick={() => fileInRef?.current?.click()}
-                type="button" variant="surface">
-                {!isUploading && (
-                  <CloudUploadIcon size={16}/>
-                )}
-                {isUploading ? 'Uploading...' : 'Choose image'}
+                onClick={() => fileInRef.current?.click()}
+                type="button"
+                variant="surface"
+              >
+                {isUploading ? 'Uploading...' : <><CloudUploadIcon size={16} /> Choose image</>}
               </Button>
             </div>
           </div>
+
+          <div className="flex flex-col gap-2 mt-5">
+            <TextArea
+              name="description"
+              className="h-16"
+              placeholder="Add photo description..."
+            />
+          </div>
         </div>
-        <div className="flex flex-col gap-2 mt-5">
-          <TextArea
-            name="description"
-            className="h-16"
-            placeholder="Add photo description..."
-          />
-        </div>
-      </div>
       </div>
       <div className="flex mt-4 justify-center">
-        <Button>
+        <Button type="submit" disabled={!imageUrl || isUploading}>
           <SendIcon size={16} />
           Publish
         </Button>
       </div>
+
     </form>
   );
 }

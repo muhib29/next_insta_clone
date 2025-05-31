@@ -21,26 +21,45 @@ export default async function MainHomePage() {
     },
   });
 
-  // const posts = await prisma.post.findMany({
-  //   where: {
-  //     author: { in: profiles.map((p) => p.email) },
-  //   },
-  //   orderBy: {
-  //     createdAt: "desc",
-  //   },
-  //   take: 100,
-  // });
+  const posts = await prisma.post.findMany({
+    where: {
+      author: { in: profiles.map((p) => p.email) },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 100,
+  });
+
+  const hasFollowers = profiles.length > 0;
+  const hasPosts = posts.length > 0;
 
   return (
     <div className="max-w-5xl w-full mx-auto flex gap-8 text-black dark:text-white">
-  <div className="flex-1 max-w-2xl">
-    <StoryBar profiles={profiles} />
-    <UserHome profiles={profiles} />
-  </div>
-  <div className="hidden lg:block w-1/3">
-    <Suggestion follows={follows} />
-  </div>
-</div>
+      <div className="flex-1 max-w-2xl">
+        {hasFollowers ? (
+          <>
+            <StoryBar profiles={profiles} />
+            {hasPosts ? (
+              <UserHome profiles={profiles} />
+            ) : (
+              <div className="mt-8 text-center text-gray-500">
+                <p>No posts yet from those you follow.</p>
+                <p>Encourage them to post, or explore new users!</p>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="mt-8 text-center text-gray-500">
+            <p>You’re not following anyone yet.</p>
+            <p>Discover and follow users to see their posts here.</p>
+          </div>
+        )}
+      </div>
 
+      <div className="hidden lg:block w-1/3">
+        <Suggestion follows={follows} />
+      </div>
+    </div>
   );
 }

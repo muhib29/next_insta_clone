@@ -3,6 +3,11 @@ import { auth } from "@/auth";
 import { uniq } from "lodash";
 import { prisma } from "@/db";
 import { revalidatePath } from "next/cache";
+// import { signOut } from "next-auth/react";
+
+// export async function logoutAction() {
+//   await signOut({ callbackUrl: "/" }); 
+// }
 
 export async function getSessionEmail(): Promise<string | null | undefined> {
   const session = await auth();
@@ -12,7 +17,7 @@ export async function getSessionEmail(): Promise<string | null | undefined> {
 export async function getSessionEmailOrThrow(): Promise<string> {
   const userEmail = await getSessionEmail();
   if (!userEmail) {
-    throw "not logged in";
+    throw new Error("Not logged in");
   }
   return userEmail;
 }
