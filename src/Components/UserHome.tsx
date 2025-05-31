@@ -15,7 +15,6 @@ export default async function UserHome({
   profiles: Profile[];
 }) {
 
-
 const posts = await prisma.post.findMany({
   where: {
     author: { in: profiles.map((p) => p.email) }, // or adjust as needed
