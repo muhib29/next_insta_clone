@@ -42,14 +42,14 @@ export default async function MainHomePage() {
   const hasFollowers = profiles.length > 0;
 
   return (
-    <div className="max-w-5xl w-full flex gap-8 px-1 sm:px-6 lg:px-8">
+    <div className="max-w-5xl w-full mx-auto flex gap-8 px-0 lg:px-8">
       <div className="flex-1 max-w-2xl">
         {hasFollowers ? (
           <>
             <StoryBar profiles={profiles} />
-             <div className="md:hidden block mt-6">
-          <SuggestedProfilesCarousel currentUserId={currentUser.id} />
-        </div>
+           <div className="md:hidden mt-6 flex justify-center">
+            <SuggestedProfilesCarousel currentUserId={currentUser.id} />
+          </div>
             <UserHome profiles={profiles} />
           </>
         ) : (

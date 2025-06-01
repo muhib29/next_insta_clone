@@ -42,9 +42,12 @@ export default function SuggestedProfilesCarousel({ currentUserId }: { currentUs
   if (profiles.length === 0) return null;
 
   return (
-    <div {...swipeHandlers} className="relative overflow-hidden w-full max-w-sm mx-auto">
-      {/* Swipe overlay */}
-   {showSwipeOverlay && (
+<div
+  {...swipeHandlers}
+  className="relative overflow-hidden w-full max-w-sm -mx-6"
+>
+
+  {showSwipeOverlay && (
  <div
   className="absolute inset-0 flex items-center justify-center pointer-events-none dark:bg-opacity-50 bg-slate-100 dark:bg-black bg-opacity-20 backdrop-blur-sm rounded-lg z-20 text-black dark:text-white text-lg font-semibold tracking-wide animate-fadeInScale"
   style={{ animationFillMode: "forwards" }}
@@ -76,7 +79,7 @@ export default function SuggestedProfilesCarousel({ currentUserId }: { currentUs
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}
       >
         {profiles.map((profile) => (
-          <div key={profile.id} className="w-full flex-shrink-0 px-2">
+        <div key={profile.id} className="w-full flex-shrink-0">
             <SuggestedProfileCard profile={profile} />
           </div>
         ))}
