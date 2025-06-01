@@ -31,7 +31,6 @@ export default function ProfilePageInfo({
             src={profile?.avatar || '/default.jpg'}
             alt="Profile"
             className="w-full h-full object-cover"
-            // layout="intrinsic" // This will maintain the image aspect ratio
             width={128} // Set the width of the image (32 * 4 = 128px)
             height={128} // Set the height of the image (32 * 4 = 128px)
             

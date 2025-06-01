@@ -2,12 +2,12 @@
   "name": "instagram-clone",
   "version": "0.1.0",
   "private": true,
-"scripts": {
-  "dev": "next dev",
-  "build": "prisma generate && next build",
-  "start": "next start",
-  "lint": "next lint"
-},
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
   "dependencies": {
     "@pinata/sdk": "github:PinataCloud/Pinata-SDK",
     "@prisma/client": "^6.5.0",
@@ -28,7 +28,9 @@
     "react-hot-toast": "^2.5.2",
     "react-masonry-css": "^1.0.16",
     "react-spinners": "^0.16.1",
-    "swr": "^2.3.3"
+    "react-swipeable": "^7.0.2",
+    "swr": "^2.3.3",
+    "tailwind-scrollbar": "^4.0.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

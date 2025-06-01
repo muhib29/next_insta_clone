@@ -24,7 +24,7 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-white text-black dark:bg-black dark:text-white transition-colors duration-300">
       <Suspense fallback={<Preloader />}>
-        <div className="flex justify-center px-4 py-4">
+        <div className="flex justify-center    py-4">
           <MainHomePage />
         </div>
       </Suspense>

@@ -3,13 +3,21 @@ import Suggestion from "@/Components/Suggestion";
 import UserHome from "@/Components/UserHome";
 import { auth } from "@/auth";
 import { prisma } from "@/db";
-
+import SuggestedProfilesCarousel from "./SuggestedProfilesCarousel";
 export default async function MainHomePage() {
   const session = await auth();
 
+  if (!session?.user?.email) return null;
+
+  const currentUser = await prisma.profile.findUnique({
+    where: { email: session.user.email },
+  });
+
+  if (!currentUser) return null;
+
   const follows = await prisma.follower.findMany({
     where: {
-      followingProfileEmail: session?.user?.email || "",
+      followingProfileEmail: session.user.email,
     },
   });
 
@@ -21,43 +29,54 @@ export default async function MainHomePage() {
     },
   });
 
-  const posts = await prisma.post.findMany({
-    where: {
-      author: { in: profiles.map((p) => p.email) },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    take: 100,
-  });
+  // const posts = await prisma.post.findMany({
+  //   where: {
+  //     author: { in: profiles.map((p) => p.email) },
+  //   },
+  //   orderBy: {
+  //     createdAt: "desc",
+  //   },
+  //   take: 100,
+  // });
 
   const hasFollowers = profiles.length > 0;
-  const hasPosts = posts.length > 0;
 
   return (
-    <div className="max-w-5xl w-full mx-auto flex gap-8 text-black dark:text-white">
+    <div className="max-w-5xl w-full flex gap-8 px-1 sm:px-6 lg:px-8">
       <div className="flex-1 max-w-2xl">
         {hasFollowers ? (
           <>
             <StoryBar profiles={profiles} />
-            {hasPosts ? (
-              <UserHome profiles={profiles} />
-            ) : (
-              <div className="mt-8 text-center text-gray-500">
-                <p>No posts yet from those you follow.</p>
-                <p>Encourage them to post, or explore new users!</p>
-              </div>
-            )}
+             <div className="md:hidden block mt-6">
+          <SuggestedProfilesCarousel currentUserId={currentUser.id} />
+        </div>
+            <UserHome profiles={profiles} />
           </>
         ) : (
-          <div className="mt-8 text-center text-gray-500">
+        <>
+         <div className="md:hidden block mt-6">
+          <SuggestedProfilesCarousel currentUserId={currentUser.id} />
+        </div>
+          <div className="mt-8 md:text-center text-left text-gray-500">
+            
             <p>You’re not following anyone yet.</p>
-            <p>Discover and follow users to see their posts here.</p>
+            <p>Here are some people you might want to follow:</p>
           </div>
+        </>
         )}
+
+        {/* Always show on small devices */}
+       
       </div>
 
-      <div className="hidden lg:block w-1/3">
+      <div className="
+          hidden 
+          lg:block 
+          w-2/5
+          max-[1250px]:w-1/2
+          max-[1050px]:w-1/2 
+          min-[1000px]:block
+        ">
         <Suggestion follows={follows} />
       </div>
     </div>

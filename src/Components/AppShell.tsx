@@ -20,7 +20,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Search Sidebar (opens on search icon click) */}
       {searchOpen && (
-        <div className="fixed top-0 left-[80px] z-40 h-screen w-[400px] border-r border-gray-200 bg-white overflow-y-auto dark:border-gray-800 dark:bg-black">
+        <div className="fixed top-0 left-[80px] z-5 h-screen w-[400px] border-r border-gray-200 bg-white overflow-y-auto dark:border-gray-800 dark:bg-black">
           <SearchPageClient onCancel={() => setSearchOpen(false)} />
         </div>
       )}

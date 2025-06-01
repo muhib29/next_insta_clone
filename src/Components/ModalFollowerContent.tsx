@@ -3,20 +3,29 @@ import { prisma } from "@/db";
 import Avatar from "./Avatar";
 import RemoveFollowerButton from "./RemoveFollowerButton"; // Assuming you already have this component
 import ModalXicon from "./ModalXicon";
-
+import FollowButton from "./FollowButton";
 export default async function ModelFollowerContent({ username }: { username: string }) {
-  // 1. Get the session data of the logged-in user
-  const session = await auth();
+ const session = await auth();
+ const currentUserEmail = session?.user?.email;
+
   if (!session?.user?.email) return <div>Unauthorized</div>;
 
-  // 2. Fetch the profile of the user whose followers we are viewing
+  // Fetch the profile being viewed
   const profile = await prisma.profile.findUnique({
     where: { username }
   });
-
   if (!profile) return <div>Profile not found</div>;
 
-  // 3. Get the followers of the specified user (not the logged-in user)
+  // Fetch the logged-in user's own profile
+  const loggedInUserProfile = await prisma.profile.findUnique({
+    where: { email: session.user.email }
+  });
+  if (!loggedInUserProfile) return <div>Logged-in profile not found</div>;
+
+  const isOwnProfile = profile.email === currentUserEmail;
+
+
+  // Get the followers of the viewed profile
   const followersList = await prisma.follower.findMany({
     where: { followedProfileId: profile.id },
     include: {
@@ -31,29 +40,13 @@ export default async function ModelFollowerContent({ username }: { username: str
     },
   });
 
-  // const followerIds = followersList.map((f) => f.followerProfile.id);
-
-  // 4. Get the followers that the specified user follows back (mutual followers)
-  // const ourFollows = await prisma.follower.findMany({
-  //   where: {
-  //     followingProfileId: profile.id,
-  //     followedProfileId: { in: followerIds },
-  //   },
-  // });
-
-  // const followMap = new Map(
-  //   ourFollows.map((follow) => [follow.followedProfileId, follow])
-  // );
-
   return (
     <div className="flex flex-col h-full">
-      {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b dark:border-neutral-700">
         <h2 className="text-lg font-semibold">{profile.username}&apos;s Followers</h2>
         <ModalXicon />
       </div>
 
-      {/* Scrollable Content */}
       <div className="overflow-y-auto">
         {followersList.length === 0 ? (
           <div className="p-4 text-sm text-center text-gray-500 dark:text-neutral-400">
@@ -83,7 +76,14 @@ export default async function ModelFollowerContent({ username }: { username: str
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <RemoveFollowerButton followerId={follower.id} />
+                 {isOwnProfile ? (
+                    <RemoveFollowerButton followerId={follower.id} />
+                  ) : (
+                    <FollowButton
+                      profileIdToFollow={follower.followerProfile.id}
+                      ourFollow={null} // optional – can remain null for now
+                    />
+                  )}
                 </div>
               </div>
             );

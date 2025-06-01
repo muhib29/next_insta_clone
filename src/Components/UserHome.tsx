@@ -77,19 +77,20 @@ const posts = await prisma.post.findMany({
         </div>
 
         {/* Image */}
-        <div className="relative">
-         <Link href={`/posts/${post.id}`}>
-          <div className="w-full h-[500px] relative">
+    <div className="relative">
+        <Link href={`/posts/${post.id}`}>
+          <div className="w-full h-[500px] bg-black flex items-center justify-center overflow-hidden">
           <Image
             src={post.image}
             alt="post"
-            className="object-cover transition-all hover:brightness-90"
-            layout="fill" 
-            objectFit="cover"
+            className="object-contain max-h-[500px] max-w-full rounded-md bg-black"
+            fill
+            style={{ objectFit: 'contain' }}
           />
-        </div>
-      </Link>
-        </div>
+          </div>
+        </Link>
+      </div>
+
 
         {/* Icons */}
         <div className="flex justify-between items-center px-4 pt-3">

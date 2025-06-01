@@ -26,24 +26,63 @@ export default function SearchPageClient({ onCancel }: { onCancel: () => void })
 
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [posts, setPosts] = useState<ExtendedPost[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     const fetchProfiles = async () => {
-      if (!query) return;
-      const res = await fetch(`/api/search?query=${query}`);
-      const data = await res.json();
-      setProfiles(data.profiles);
-      setPosts(data.posts);
+      if (!query) {
+        setProfiles([]);
+        setPosts([]);
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const res = await fetch(`/api/search?query=${encodeURIComponent(query)}`, {
+          signal: controller.signal,
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch");
+
+        const data = await res.json();
+        setProfiles(data.profiles || []);
+        setPosts(data.posts || []);
+      } catch (err) {
+        if (!(err instanceof DOMException && err.name === "AbortError")) {
+          setError("Something went wrong. Please try again.");
+        }
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchProfiles();
+
+    return () => controller.abort();
   }, [query]);
 
   return (
-    <div className="min-h-full w-full flex flex-col mt-2">
+    <div className="min-h-screen w-full flex flex-col mt-4 px-4">
       <SearchForm onCancel={onCancel} />
-      {query && (
+
+      {loading && (
+        <p className="text-sm text-gray-500 dark:text-gray-400 italic mt-4">
+          Loading search results...
+        </p>
+      )}
+
+      {error && (
+        <p className="text-sm text-red-500 mt-4 ">{error}</p>
+      )}
+
+      {query && !loading && !error && (
         <SearchResults
+          loading={loading}
           query={query}
           profiles={profiles}
           posts={posts}

@@ -12,12 +12,10 @@ export default async function Suggestion({
 }) {
   const session = await auth();
   const currentUser = await prisma.profile.findUnique({
-    where: { email: session?.user?.email || '' },
+    where: { email: session?.user?.email || "" },
   });
 
   const followedIds = follows.map((f) => f.followedProfileId);
-
-  // Only add currentUser.id if it's defined
   const excludedIds: string[] = currentUser?.id
     ? [...followedIds, currentUser.id]
     : [...followedIds];
@@ -29,7 +27,6 @@ export default async function Suggestion({
       },
     },
   });
-
 
   const mutualFollows = await prisma.follower.findMany({
     where: {
@@ -46,77 +43,78 @@ export default async function Suggestion({
   });
 
   return (
-<div className="hidden lg:block w-full p-4 rounded-lg h-fit bg-white dark:bg-zinc-900 shadow-md transition-colors">
-  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-400 mb-4">
-    {suggestedProfiles.length > 0
-      ? "Suggestions For You"
-      : "No Suggestions right now"}
-  </h3>
+    <div className="hidden md:block w-full p-4 rounded-2xl bg-white dark:bg-zinc-900 shadow-lg transition-colors">
+      <h3 className="text-base font-semibold text-gray-800 dark:text-gray-300 mb-4">
+        {suggestedProfiles.length > 0
+          ? "Suggestions For You"
+          : "No Suggestions Right Now"}
+      </h3>
 
-  {suggestedProfiles.length > 0 &&
-    suggestedProfiles.map((profile) => {
-      const mutuals = mutualFollows.filter(
-        (mf) => mf.followedProfileId === profile.id
-      );
-      const firstMutual = mutuals[0]?.followerProfile?.username;
+      <div className="space-y-4">
+        {suggestedProfiles.map((profile) => {
+          const mutuals = mutualFollows.filter(
+            (mf) => mf.followedProfileId === profile.id
+          );
+          const firstMutual = mutuals[0]?.followerProfile?.username;
 
-      return (
-        <div
-          key={profile.id}
-          className="flex items-center justify-between mb-4"
-        >
-          <Link
-            href={`/users/${profile?.username}`}
-            className="flex items-center space-x-3"
-          >
-            {profile.avatar ? <Avatar src={profile.avatar} /> : ""}
-            <div>
-              <p className="text-sm font-semibold text-zinc-800 dark:text-white">
-                {profile.username}
-              </p>
-              {firstMutual ? (
-                <p className="text-xs text-zinc-500 dark:text-gray-400">
-                  Followed by {firstMutual}
-                  {mutuals.length > 1 &&
-                    ` and ${mutuals.length - 1} others`}
-                </p>
-              ) : (
-                <p className="text-xs text-zinc-500 dark:text-gray-400">
-                  Suggested for you
-                </p>
-              )}
+          return (
+            <div
+              key={profile.id}
+              className="flex items-center justify-between gap-3 transition hover:bg-zinc-100 dark:hover:bg-zinc-800 p-2 rounded-xl"
+            >
+              <Link
+                href={`/users/${profile?.username}`}
+                className="flex items-center gap-3"
+              >
+                <Avatar src={profile.avatar || ""} />
+                <div className="w-40 truncate">
+                  <p className="text-sm font-semibold text-zinc-900 dark:text-white truncate">
+                    {profile.username}
+                  </p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
+                    {firstMutual
+                      ? `Followed by ${firstMutual}${
+                          mutuals.length > 1
+                            ? ` and ${mutuals.length - 1} others`
+                            : ""
+                        }`
+                      : "Suggested for you"}
+                  </p>
+                </div>
+              </Link>
+              <FollowButton ourFollow={null} profileIdToFollow={profile.id} />
             </div>
-          </Link>
-          <FollowButton ourFollow={null} profileIdToFollow={profile.id} />
+          );
+        })}
+      </div>
+
+      {/* Footer */}
+      <div className="mt-6 text-[11px] text-zinc-500 dark:text-zinc-400 space-y-2">
+        <div className="flex flex-wrap gap-x-3 gap-y-1">
+          {[
+            "About",
+            "Help",
+            "Press",
+            "API",
+            "Jobs",
+            "Privacy",
+            "Terms",
+            "Locations",
+            "Language",
+            "Meta Verified",
+          ].map((item) => (
+            <p
+              key={item}
+              className="hover:underline cursor-pointer transition text-xs"
+            >
+              {item}
+            </p>
+          ))}
         </div>
-      );
-    })}
-
-  {/* Footer */}
-  <div className="mt-6 text-[11px] text-zinc-500 dark:text-zinc-400 space-y-2">
-    <div className="flex flex-wrap gap-2">
-      {[
-        "About",
-        "Help",
-        "Press",
-        "API",
-        "Jobs",
-        "Privacy",
-        "Terms",
-        "Locations",
-        "Language",
-        "Meta Verified",
-      ].map((item) => (
-        <p key={item} className="hover:underline cursor-pointer">
-          {item}
+        <p className="text-[11px] text-zinc-400 mt-2">
+          © 2025 Instagram from Meta
         </p>
-      ))}
+      </div>
     </div>
-    <p className="text-[11px] text-zinc-400 mt-2">
-      © 2025 Instagram from Meta
-    </p>
-  </div>
-</div>
-
   );
 }

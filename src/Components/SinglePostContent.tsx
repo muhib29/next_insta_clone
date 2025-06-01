@@ -23,18 +23,13 @@ export default function SinglePostContent({
   myBookmark: Bookmark | null;
 }) {
   return (
-    <div className="max-w-5xl h-[600px] mx-auto bg-white dark:bg-black border border-neutral-700 rounded-lg overflow-hidden shadow-sm md:flex">
-      <div className="md:w-1/2 h-full bg-black flex justify-center items-center overflow-hidden relative">
+   <div className="max-w-5xl h-auto md:h-[600px] mx-auto flex flex-col md:flex-row bg-white dark:bg-black border border-[#ebebeb] dark:border-neutral-700 rounded-lg overflow-hidden shadow-sm md:flex">
+      <div className="w-full  h-[300px] md:h-full md:w-1/2  bg-black flex justify-center items-center overflow-hidden relative">
         <Image
           src={post.image}
           alt="Post"
+          fill
           className="object-contain"
-          layout="fill" // Makes the image take up the full space of its parent container
-          objectFit="contain" // Ensures the image will be contained without cropping
-          quality={100} // Optional: You can set the quality of the image (default is 75)
-          //  width={600} 
-              // height={400} 
-          
         />
       </div>
 
@@ -42,7 +37,7 @@ export default function SinglePostContent({
       <div className="md:w-1/2 flex flex-col justify-between p-4">
 
         {/* Description as first comment (author) */}
-        <div className="mb-4 border-b border-neutral-700 pb-2">
+        <div className="mb-4 border-b border-[#ebebeb] dark:border-neutral-700 pb-2">
           <Comment
             authorProfile={authorProfile}
             createdAt={post.createdAt}
@@ -53,7 +48,7 @@ export default function SinglePostContent({
         </div>
 
         {/* Scrollable Comments Section */}
-        <div className="flex-1 overflow-y-scroll space-y-4 max-h-[40vh] pr-1 scrollbar-thin scrollbar-thumb-neutral-700">
+       <div className="flex-1 overflow-y-scroll space-y-4 max-h-[30vh] md:max-h-[40vh] pr-1 scrollbar-thin scrollbar-thumb-neutral-700">
           {comments.map((comment) => (
             <Comment
               key={comment.id}
@@ -79,7 +74,7 @@ export default function SinglePostContent({
           </div>
         </div>
         {/* Add Comment */}
-        <div className="pt-4 border-t border-neutral-700 mt-2">
+        <div className="pt-4 border-t border-[#ebebeb] dark:border-neutral-700 mt-2">
           <Suspense fallback={<Preloader />}>
             <SessionCommentForm postId={post.id} />
           </Suspense>

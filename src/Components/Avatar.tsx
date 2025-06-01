@@ -7,13 +7,14 @@ export default function Avatar({
   }) {
     return (
       <div className="relative size-16 aspect-square overflow-hidden rounded-full">
-      <Image
-        src={src}
-        alt="Avatar"
-        layout="fill" 
-        objectFit="cover" 
-        quality={100} 
-      />
+<Image
+  src={src}
+  alt="Avatar"
+  fill
+  style={{ objectFit: 'cover' }}
+  quality={100}
+/>
+
     </div>
     );
   }
