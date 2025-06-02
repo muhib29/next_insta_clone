@@ -1,7 +1,11 @@
 import { prisma } from "@/db";
 import PostGrid from "./PostsGrid";
+import { auth } from "@/auth";
 
 export default async function ProfilePosts({ email }: { email: string }) {
+  
+  const session = await auth();
+  const currentUserId = session?.user?.email || ''; // or session?.user?.id
   const posts = await prisma.post.findMany({
     where: { author: email },
     include: {
@@ -20,5 +24,5 @@ export default async function ProfilePosts({ email }: { email: string }) {
     </div>
   }
 
-  return <PostGrid posts={posts} />;
+  return <PostGrid posts={posts} currentUserId={currentUserId}/>;
 }

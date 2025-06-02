@@ -4,8 +4,11 @@ export const dynamic = "force-dynamic";
 import PostGrid from "@/Components/PostsGrid";
 import { prisma } from "@/db";
 import ExploreSearchWrapper from "@/Components/ExploreSearchWrapper"; // ✅ use wrapper
+import { auth } from "@/auth";
 
 export default async function ExplorePage() {
+  const session = await auth();
+  const currentUserId = session?.user?.email || ''; // or session?.user?.id
   const posts = await prisma.post.findMany({
     include: {
       _count: {
@@ -22,7 +25,7 @@ export default async function ExplorePage() {
       <ExploreSearchWrapper /> 
       <div className="p-4">
         {posts.length > 0 ? (
-          <PostGrid posts={posts} />
+          <PostGrid posts={posts} currentUserId={currentUserId}/>
         ) : (
           <div className="text-center text-gray-500 mt-10">
             No posts available yet. Be the first to post something!

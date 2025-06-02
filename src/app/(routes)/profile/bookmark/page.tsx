@@ -7,6 +7,7 @@ import PostGrid from "@/Components/PostsGrid";
 export default async function BookMarkPage(){
   
     const session = await auth();
+    const currentUserId = session?.user?.email || ''; 
     const profile = await prisma.profile
       .findFirst({where:{email:session?.user?.email as string}});
     if (!profile) {
@@ -53,7 +54,7 @@ export default async function BookMarkPage(){
           />
           <div className="mt-4">
             {posts.length > 0 ? (
-              <PostGrid posts={posts} />
+              <PostGrid posts={posts}  currentUserId={currentUserId}/>
             ) : (
               <div className="text-center text-gray-500 dark:text-gray-400 mt-10">
                 You haven&apos;t bookmarked any posts yet.

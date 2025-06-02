@@ -4,6 +4,7 @@ import { Post, Profile } from "@prisma/client";
 import PostGrid from "./PostsGrid";
 import Image from "next/image";
 import Link from "next/link";
+import { auth } from "@/auth";
 
 type ExtendedPost = Post & {
   _count: {
@@ -12,7 +13,7 @@ type ExtendedPost = Post & {
   };
 };
 
-export default function SearchResults({
+export default async function SearchResults({
   loading,
   query,
   profiles,
@@ -25,6 +26,8 @@ export default function SearchResults({
   posts: ExtendedPost[];
   onCancel: () => void;
 }) {
+  const session = await auth();
+  const currentUserId = session?.user?.email || ''; // or session?.user?.id
   return (
     <div className="mt-4 w-full space-y-8">
       <div className="space-y-1">
@@ -89,7 +92,7 @@ export default function SearchResults({
               </p>
             ) : (
               <div className="scale-[1.02] sm:scale-100 transition-transform duration-300">
-                <PostGrid posts={posts} />
+                <PostGrid posts={posts}  currentUserId={currentUserId}/>
               </div>
             )}
           </section>

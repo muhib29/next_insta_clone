@@ -3,11 +3,6 @@ import { auth } from "@/auth";
 import { uniq } from "lodash";
 import { prisma } from "@/db";
 import { revalidatePath } from "next/cache";
-// import { signOut } from "next-auth/react";
-
-// export async function logoutAction() {
-//   await signOut({ callbackUrl: "/" }); 
-// }
 
 export async function getSessionEmail(): Promise<string | null | undefined> {
   const session = await auth();
@@ -232,3 +227,34 @@ export async function getSinglePostData(postId:string){
     commentsAuthors, myLike, myBookmark,
   };
 };
+
+
+
+export async function deletePost(postId: string) {
+  const sessionEmail = await getSessionEmailOrThrow();
+
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+  });
+
+  if (!post) {
+    throw new Error('Post not found');
+  }
+
+  if (post.author !== sessionEmail) {
+    throw new Error('Unauthorized: You can only delete your own posts');
+  }
+
+  // Manually delete related Likes and Comments before deleting Post
+  await prisma.like.deleteMany({
+    where: { postId: postId },
+  });
+
+  await prisma.comment.deleteMany({
+    where: { postId: postId },
+  });
+
+  await prisma.post.delete({
+    where: { id: postId },
+  });
+}

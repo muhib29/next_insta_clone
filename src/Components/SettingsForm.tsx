@@ -28,10 +28,15 @@ export default function SettingsForm({ profile }: { profile: Profile | null }) {
         const data = new FormData();
         data.set("file", file);
         try {
-          const res = await fetch("/api/upload", {
+         const res = await fetch("/api/upload", {
             method: "POST",
             body: data,
           });
+
+          if (!res.ok) {
+            throw new Error("Failed to upload image");
+          }
+
           const { url } = await res.json();
           setAvatarUrl(url);
         } catch (err) {

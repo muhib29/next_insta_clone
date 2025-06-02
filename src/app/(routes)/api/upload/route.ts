@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     groupId: "e269a5a5-da39-420f-895a-5a6b4ec4d899"
     });
     const fileUrl = `https://gateway.pinata.cloud/ipfs/${uploadData.IpfsHash}`;
-    return NextResponse.json(fileUrl, { status: 200 });
+   return NextResponse.json({ url: fileUrl }, { status: 200 });
   } catch (e) {
     console.log(e);
     return NextResponse.json(
