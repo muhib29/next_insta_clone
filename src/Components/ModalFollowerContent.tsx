@@ -54,10 +54,10 @@ export default async function ModelFollowerContent({ username }: { username: str
           </div>
         ) : (
           followersList.map((follower) => {
-            const followedUserId = follower.followerProfile.id;
+            // const followedUserId = follower.followerProfile.id;
             return (
               <div
-                key={followedUserId}
+                key={follower.id}
                 className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800"
               >
                 <div className="flex items-center gap-3">

@@ -68,16 +68,25 @@ export default async function ModelFollowingContent({ username }: { username: st
           >
             <Link href={`/users/${user.username}`} className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-gray-300 dark:bg-neutral-700 overflow-hidden">
-                {user.avatar && (
-                 <Image
-                 src={user.avatar}
-                 alt="User Avatar"
-                 className="w-full h-full object-cover"
-                 width={40}  
-                 height={40} 
-                 
-               />
+                {user.avatar ? (
+                  <Image
+                    src={user.avatar}
+                    alt="User Avatar"
+                    className="w-full h-full object-cover"
+                    width={40}
+                    height={40}
+                  />
+                ) : (
+                  <Image
+                    src="/userImage.png"
+                    alt="Default Avatar"
+                    className="w-full h-full object-cover"
+                    style={{ objectFit: 'cover' }}
+                    width={40}
+                    height={40}
+                  />
                 )}
+
               </div>
               <div className="flex flex-col">
                 <span className="text-sm font-medium">{user.username}</span>

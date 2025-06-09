@@ -2,18 +2,17 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import SearchForm from "@/Components/SearchForm";
 import SearchResults from "./SearchResults";
-import { Profile } from "@prisma/client";
+import { Profile, Post } from "@prisma/client";
 
-type ExtendedPost = {
-  id: string;
-  author: string;
-  image: string;
-  description: string;
-  likesCount: number;
-  createdAt: Date;
-  updatedAt: Date;
+
+type ExtendedPost = Post & {
+  media: {
+    type: 'image' | 'video';
+    url: string;
+  }[];
   _count: {
     likes: number;
     comments: number;
@@ -23,6 +22,9 @@ type ExtendedPost = {
 export default function SearchPageClient({ onCancel }: { onCancel: () => void }) {
   const searchParams = useSearchParams();
   const query = searchParams.get("query") || "";
+
+  const { data: session } = useSession();
+  const currentUserId = session?.user?.email || ""; // or session?.user?.id depending on your auth setup
 
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [posts, setPosts] = useState<ExtendedPost[]>([]);
@@ -49,7 +51,11 @@ export default function SearchPageClient({ onCancel }: { onCancel: () => void })
 
         if (!res.ok) throw new Error("Failed to fetch");
 
-        const data = await res.json();
+        const data: {
+          profiles: Profile[];
+          posts: ExtendedPost[];
+        } = await res.json();
+
         setProfiles(data.profiles || []);
         setPosts(data.posts || []);
       } catch (err) {
@@ -87,6 +93,7 @@ export default function SearchPageClient({ onCancel }: { onCancel: () => void })
           profiles={profiles}
           posts={posts}
           onCancel={onCancel}
+          currentUserId={currentUserId}
         />
       )}
     </div>

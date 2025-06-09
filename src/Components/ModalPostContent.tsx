@@ -1,6 +1,5 @@
 'use client';
 
-// import { useEffect, useState } from 'react';
 import useSWR from 'swr';
 import SinglePostContent from './SinglePostContent';
 import Preloader from './Preloader';

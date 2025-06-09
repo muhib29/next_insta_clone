@@ -18,13 +18,32 @@ export default function SuggestedProfileCard({
   return (
     <div className="flex items-center justify-between bg-gray-100 dark:bg-[#1a1a1a] rounded-lg shadow-sm p-4 w-full max-w-sm mx-auto relative">
       <Link href={`/users/${profile.username}`} className="flex items-center gap-3">
+        {/* {profile.avatar ? (
+          <Image
+            src={profile.avatar}
+            alt={profile.name || "User Avatar"}
+            width={40}
+            height={40}
+            className="rounded-full object-cover w-10 h-10"
+          />
+        ) : (
+          <Image
+            src="/userImage.png"
+            alt="Default Avatar"
+            width={40}
+            height={40}
+            className="rounded-full object-cover w-10 h-10"
+            style={{ objectFit: 'cover' }}
+          />
+        )} */}
         <Image
-          src={profile.avatar || "/default-avatar.png"}
+          src={profile.avatar || '/userImage.png'}
           alt={profile.name || "User Avatar"}
           width={40}
           height={40}
           className="rounded-full object-cover w-10 h-10"
         />
+
         <div className="truncate">
           <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
             {profile.name}
@@ -34,7 +53,7 @@ export default function SuggestedProfileCard({
       </Link>
 
       {!isFollowing ? (
-       <FollowButton ourFollow={null} profileIdToFollow={profile.id }/>
+        <FollowButton ourFollow={null} profileIdToFollow={profile.id} />
       ) : (
         <span className="text-green-500 text-sm font-semibold ml-2">Following</span>
       )}

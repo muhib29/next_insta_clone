@@ -17,38 +17,62 @@ export async function getSessionEmailOrThrow(): Promise<string> {
   return userEmail;
 }
 export async function updateProfile(data: FormData) {
-    const userEmail = await getSessionEmailOrThrow();
-  
-    const newUserInfo = {
-      username: data.get('username') as string,
-      name: data.get('name') as string,
-      subtitle: data.get('subtitle') as string,
-      bio: data.get('bio') as string,
-      avatar: data.get('avatar') as string,
-    };
-  
-    await prisma.profile.upsert({
-      where: { email: userEmail }, // Find the user by email
-      update: newUserInfo, // Update existing profile
-      create: {
-        email: userEmail,
-        ...newUserInfo,
-      }, // Create profile if it doesn’t exist
-    });
-  }
-  
-export async function postEntry(data: FormData){
-  const sessionEmail = await getSessionEmailOrThrow();
-  const postDoc = await prisma.post.create({
-    data: {
-      author: sessionEmail,
-      image: data.get('image') as string,
-      description: data.get('description') as string,
+  const userEmail = await getSessionEmailOrThrow();
 
-    }
-  })
+  const newUserInfo = {
+    username: data.get('username') as string,
+    name: data.get('name') as string,
+    subtitle: data.get('subtitle') as string,
+    bio: data.get('bio') as string,
+    avatar: data.get('avatar') as string,
+  };
+
+  await prisma.profile.upsert({
+    where: { email: userEmail }, // Find the user by email
+    update: newUserInfo, // Update existing profile
+    create: {
+      email: userEmail,
+      ...newUserInfo,
+    }, // Create profile if it doesn’t exist
+  });
+}
+
+export async function postEntry(data: FormData) {
+  const sessionEmail = await getSessionEmailOrThrow();
+
+  const mediaData = data.get('media');
+  const description = data.get('description');
+
+  if (!mediaData || typeof mediaData !== 'string') {
+    throw new Error("Media is required and must be a string");
+  }
+  if (typeof description !== 'string') {
+    throw new Error("Description must be a string");
+  }
+
+  const mediaArray: { url: string; type: 'image' | 'video' }[] = JSON.parse(mediaData);
+
+  // ✅ Extract first image and first video if available
+  // const firstImage = mediaArray.find((m) => m.type === 'image')?.url ?? null;
+  // const firstVideo = mediaArray.find((m) => m.type === 'video')?.url ?? null;
+
+  const postDoc = await prisma.post.create({
+  data: {
+    author: sessionEmail,
+    description,
+    media: {
+      create: mediaArray.map((m) => ({
+        url: m.url,
+        type: m.type,
+      })),
+    },
+  },
+});
+
   return postDoc.id;
 }
+
+
 export async function postComment(data: FormData) {
   const authorEmail = await getSessionEmailOrThrow(); // Get email of the logged-in user
 
@@ -99,9 +123,9 @@ export async function updatePostLikesCount(postId: string) {
     },
   });
 }
-export async  function likePost (data: FormData){
+export async function likePost(data: FormData) {
   const postId = data.get('postId') as string;
-    await prisma.like.create({
+  await prisma.like.create({
     data: {
       author: await getSessionEmailOrThrow(),
       postId,
@@ -110,7 +134,7 @@ export async  function likePost (data: FormData){
   await updatePostLikesCount(postId)
 }
 
-export async function removeLikeFromPost(data:FormData){
+export async function removeLikeFromPost(data: FormData) {
   const postId = data.get('postId') as string;
   await prisma.like.deleteMany({
     where: {
@@ -121,9 +145,9 @@ export async function removeLikeFromPost(data:FormData){
   await updatePostLikesCount(postId)
 }
 
-export async function followProfile(profileIdToFollow:string) {
+export async function followProfile(profileIdToFollow: string) {
   const sessionProfile = await prisma.profile.findFirstOrThrow({
-    where:{email: await getSessionEmailOrThrow()},
+    where: { email: await getSessionEmailOrThrow() },
   });
   await prisma.follower.create({
     data: {
@@ -142,7 +166,7 @@ export async function unfollowProfile(profileIdToUnfollow: string) {
     where: {
       followingProfileEmail: sessionProfile.email,
       followingProfileId: sessionProfile.id,
-      followedProfileId: profileIdToUnfollow, 
+      followedProfileId: profileIdToUnfollow,
     },
   });
 }
@@ -169,7 +193,7 @@ export async function removeFollowerById(followerId: string) {
   revalidatePath("/"); // 👈 update this path to your current page route
 }
 
-export async function bookmarkPost(postId: string){
+export async function bookmarkPost(postId: string) {
   const sessionEmail = await getSessionEmailOrThrow();
   await prisma.bookmark.create({
     data: {
@@ -179,7 +203,7 @@ export async function bookmarkPost(postId: string){
   })
 }
 
-export async function unbookmarkPost(postId: string){
+export async function unbookmarkPost(postId: string) {
   const sessionEmail = await getSessionEmailOrThrow();
   await prisma.bookmark.deleteMany({
     where: {
@@ -189,12 +213,15 @@ export async function unbookmarkPost(postId: string){
   })
 }
 
-export async function getSinglePostData(postId:string){
+export async function getSinglePostData(postId: string) {
   const sessionEmail = await getSessionEmailOrThrow();
   const post = await prisma.post.findFirstOrThrow({
     where: {
       id: postId
-    }
+    },
+    include: {
+    media: true,
+  },
   })
   const authorProfile = await prisma.profile.findFirstOrThrow({
     where: {
@@ -212,7 +239,7 @@ export async function getSinglePostData(postId:string){
     where: { postId: post.id },
   });
   const commentsAuthors = await prisma.profile.findMany({
-    where:{
+    where: {
       email: { in: uniq(comments.map((c) => c.author)) },
     }
   })
@@ -227,8 +254,6 @@ export async function getSinglePostData(postId:string){
     commentsAuthors, myLike, myBookmark,
   };
 };
-
-
 
 export async function deletePost(postId: string) {
   const sessionEmail = await getSessionEmailOrThrow();
@@ -245,7 +270,11 @@ export async function deletePost(postId: string) {
     throw new Error('Unauthorized: You can only delete your own posts');
   }
 
-  // Manually delete related Likes and Comments before deleting Post
+  // Delete related Media, Likes, and Comments first
+  await prisma.media.deleteMany({
+    where: { postId: postId },
+  });
+
   await prisma.like.deleteMany({
     where: { postId: postId },
   });
@@ -254,6 +283,7 @@ export async function deletePost(postId: string) {
     where: { postId: postId },
   });
 
+  // Finally delete the Post
   await prisma.post.delete({
     where: { id: postId },
   });

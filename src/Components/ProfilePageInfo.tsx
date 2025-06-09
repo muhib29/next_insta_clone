@@ -18,7 +18,7 @@ export default function ProfilePageInfo({
     followingCount: number;
   };
 }) {
-  
+
   const { postCount = 0, followersCount = 0, followingCount = 0 } = stats || {};
 
   return (
@@ -26,17 +26,26 @@ export default function ProfilePageInfo({
       <div className="w-full max-w-4xl mt-10 flex flex-col sm:flex-row gap-14">
         {/* Profile Picture */}
         <div className="flex-shrink-0">
-        <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-purple-600">
-        <Image
-            src={profile?.avatar || '/default.jpg'}
-            alt="Profile"
-            className="w-full h-full object-cover"
-            width={128} // Set the width of the image (32 * 4 = 128px)
-            height={128} // Set the height of the image (32 * 4 = 128px)
-            
-          />
-        </div>
+          <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-purple-600">
+            {profile?.avatar ? (
+              <Image
+                src={profile.avatar}
+                alt="Profile"
+                className="w-full h-full object-cover"
+                width={128} // Set the width of the image (32 * 4 = 128px)
+                height={128} // Set the height of the image (32 * 4 = 128px)
+              />
+            ) : (
+              <img
+                src="/userImage.png"
+                alt="Default Profile"
+                className="w-full h-full object-cover"
+                width={128} // Set the width of the image (32 * 4 = 128px)
+                height={128} // Set the height of the image (32 * 4 = 128px)
+              />
+            )}
 
+          </div>
         </div>
 
         {/* User Info */}
@@ -58,16 +67,16 @@ export default function ProfilePageInfo({
             </Link>
           </div>
           <div className="flex gap-6 mt-4 text-sm text-gray-600 dark:text-gray-300">
-  <p>
-    <span className="font-semibold text-black dark:text-white">{postCount}</span> posts
-  </p>
-      <Link href={`/users/${profile.username}/follower`}>
-        <span className="font-semibold text-black dark:text-white cursor-pointer ">{followersCount}</span> followers
-      </Link>
-       <Link href={`/users/${profile.username}/following`}>
-        <span className="font-semibold text-black dark:text-white cursor-pointer">{followingCount}</span> following
-      </Link>
-    </div>
+            <p>
+              <span className="font-semibold text-black dark:text-white">{postCount}</span> posts
+            </p>
+            <Link href={`/users/${profile.username}/follower`}>
+              <span className="font-semibold text-black dark:text-white cursor-pointer ">{followersCount}</span> followers
+            </Link>
+            <Link href={`/users/${profile.username}/following`}>
+              <span className="font-semibold text-black dark:text-white cursor-pointer">{followingCount}</span> following
+            </Link>
+          </div>
           {/* Bio */}
           <div className="mt-4 text-sm">
             <p className="font-semibold  text-black dark:text-purple-400">{profile?.name}</p>

@@ -12,7 +12,7 @@ export default function StoryBar({ profiles }: { profiles: Profile[] }) {
       className="flex flex-col items-center text-sm hover:opacity-80 transition"
     >
       <div className="w-16 h-16 rounded-full border-2 border-pink-500 overflow-hidden">
-        <Avatar src={profile.avatar || "/default-avatar.png"} />
+        <Avatar src={profile.avatar} />
       </div>
       <span className="mt-1 truncate w-16 text-center text-zinc-700 dark:text-gray-300">
         {profile.username}

@@ -26,19 +26,26 @@ model Profile {
   followings Follower[] @relation("Followers")
 }
 
-  
 model Post {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
   author      String
-  image       String
   description String
   likesCount  Int       @default(0)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  // New relations
   likes       Like[]    @relation("PostLikes")
   comments    Comment[] @relation("PostComments")
+
+  media       Media[]   @relation("PostMedia")
+}
+
+model Media {
+  id      String  @id @default(auto()) @map("_id") @db.ObjectId
+  url     String
+  type    String // "image" or "video"
+  post    Post    @relation("PostMedia", fields: [postId], references: [id])
+  postId  String  @db.ObjectId
 }
 
 model Like {

@@ -8,6 +8,7 @@ import { Toaster } from "react-hot-toast";
 import AppShell from "@/Components/AppShell";
 import { auth, signIn } from "@/auth";
 import Image from "next/image";
+import { SessionProvider } from "next-auth/react"; // <-- import SessionProvider
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -26,24 +27,27 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white dark:bg-black dark:text-white`}
       >
-        <Theme>
-          {session ? (
-            <>
-              {modal}
-              <AppShell>
-                {children}
-                <Toaster position="top-right" reverseOrder={false} />
-              </AppShell>
-            </>
-          ) : (
-            <LoginScreen />
-          )}
-        </Theme>
-        <ThemeObserver />
+        <SessionProvider session={session}> {/* Wrap here */}
+          <Theme>
+            {session ? (
+              <>
+                {modal}
+                <AppShell>
+                  {children}
+                  <Toaster position="top-right" reverseOrder={false} />
+                </AppShell>
+              </>
+            ) : (
+              <LoginScreen />
+            )}
+          </Theme>
+          <ThemeObserver />
+        </SessionProvider>
       </body>
     </html>
   );
 }
+
 function LoginScreen() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-black">

@@ -75,15 +75,30 @@ const handleLogout = async () => {
 
         <div className="flex gap-4 items-center mb-6">
           <div className="bg-black size-24 rounded-full overflow-hidden aspect-square shadow-md shadow-gray-400">
-            {avatarUrl && (
+            {/* {avatarUrl ? (
               <Image
-                src={avatarUrl}
+                src={avatarUrl || '/userIcon.png'}
+                alt="Avatar"  
+                className="w-full h-full object-cover"
+                width={96}
+                height={96}
+              />
+            ) : (
+              <Image
+                src="/userImage.png"
+                alt="Default Avatar"
+                fill
+                style={{ objectFit: 'cover' }}
+                quality={100}
+              />
+            )} */}
+                          <Image
+                src={avatarUrl || '/userIcon.png'}
                 alt="Avatar"
                 className="w-full h-full object-cover"
                 width={96}
                 height={96}
               />
-            )}
           </div>
           <div>
             <input

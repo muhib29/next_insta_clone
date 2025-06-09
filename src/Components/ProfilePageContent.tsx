@@ -40,7 +40,7 @@ export default async function ProfilePageContent({
       />
       <section className="mt-4">
         <Suspense fallback={<Preloader />}>
-          <ProfilePosts email={profile.email}/>
+          <ProfilePosts isOurProfile={isOurProfile} email={profile.email}/>
         </Suspense>
       </section>
     </main>

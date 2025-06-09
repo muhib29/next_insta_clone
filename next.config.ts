@@ -2,7 +2,20 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ["gateway.pinata.cloud", "upload.wikimedia.org", "img.icons8.com"], // Add the domains here
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "gateway.pinata.cloud",
+      },
+      {
+        protocol: "https",
+        hostname: "upload.wikimedia.org",
+      },
+      {
+        protocol: "https",
+        hostname: "img.icons8.com",
+      },
+    ],
   },
 };
 

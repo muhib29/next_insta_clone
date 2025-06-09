@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Profile } from "@prisma/client";
 import SearchFormMobile from "./SearchFormMobile";
 import SearchResultsMobile from "./SearchResultsMobile";
+import { useSession } from "next-auth/react";
 
 type ExtendedPost = {
   id: string;
@@ -14,6 +15,10 @@ type ExtendedPost = {
   likesCount: number;
   createdAt: Date;
   updatedAt: Date;
+  media: {
+    type: 'image' | 'video';
+    url: string;
+  }[];
   _count: {
     likes: number;
     comments: number;
@@ -28,6 +33,9 @@ export default function ExploreSearchBar() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [posts, setPosts] = useState<ExtendedPost[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const { data: session } = useSession();
+  const currentUserId = session?.user?.email || "";
 
   useEffect(() => {
     const fetchSearchResults = async () => {
@@ -71,8 +79,11 @@ export default function ExploreSearchBar() {
 
   return (
     <div
-      className={`md:hidden z-40 transition-all ${query ? "fixed inset-0 bg-black/30 z-30 backdrop-blur-sm dark:bg-black px-4 py-4" : "sticky top-0 bg-white dark:bg-black px-4 py-3 border-b border-zinc-300 dark:border-zinc-800"
-        }`}
+      className={`md:hidden z-40 transition-all ${
+        query
+          ? "fixed inset-0 bg-black/30 z-30 backdrop-blur-sm dark:bg-black px-4 py-4"
+          : "sticky top-0 bg-white dark:bg-black px-4 py-3 border-b border-zinc-300 dark:border-zinc-800"
+      }`}
     >
       <SearchFormMobile
         query={query}
@@ -86,6 +97,7 @@ export default function ExploreSearchBar() {
           profiles={profiles}
           posts={posts}
           onCancel={handleCancel}
+          currentUserId={currentUserId}
         />
       )}
     </div>
