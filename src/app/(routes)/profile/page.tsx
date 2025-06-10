@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import ProfilePageContent from "@/Components/ProfilePageContent";
 import { prisma } from "@/db";
 import { redirect } from "next/navigation";
+export const dynamic = "force-dynamic";
 
 export default async function Profile() {
   try {

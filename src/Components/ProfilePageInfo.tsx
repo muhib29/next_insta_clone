@@ -32,16 +32,16 @@ export default function ProfilePageInfo({
                 src={profile.avatar}
                 alt="Profile"
                 className="w-full h-full object-cover"
-                width={128} // Set the width of the image (32 * 4 = 128px)
-                height={128} // Set the height of the image (32 * 4 = 128px)
+                width={128} 
+                height={128} 
               />
             ) : (
-              <img
+              <Image
                 src="/userImage.png"
                 alt="Default Profile"
                 className="w-full h-full object-cover"
-                width={128} // Set the width of the image (32 * 4 = 128px)
-                height={128} // Set the height of the image (32 * 4 = 128px)
+                width={128} 
+                height={128} 
               />
             )}
 

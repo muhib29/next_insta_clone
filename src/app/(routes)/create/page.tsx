@@ -4,8 +4,9 @@ import { CloudUploadIcon, SendIcon } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { postEntry } from "@/action";
-import { uploadFileToPinataClient } from "../../../../utils/uploadToPinata";
+// import { uploadFileToPinataClient } from "../../../../utils/uploadToPinata";
 import Image from "next/image";
+import { uploadFileSecurely } from "../../../../utils/uploadToPinata";
 export default function CreatePage() {
 
   const [isUploading, setIsUploading] = useState(false);
@@ -24,7 +25,7 @@ export default function CreatePage() {
       setIsUploading(true);
       const uploads = await Promise.all(
         files.map(async ({ file, type }) => {
-          const { IpfsHash } = await uploadFileToPinataClient(file);
+          const { IpfsHash } = await uploadFileSecurely(file);
           return {
             url: `https://gateway.pinata.cloud/ipfs/${IpfsHash}`,
             type,

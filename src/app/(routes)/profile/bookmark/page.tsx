@@ -42,9 +42,9 @@ const posts = (
   ...post,
   media: post.media.map((m) => ({
     url: m.url,
-    type: m.type === 'video' || m.type === 'image' ? m.type : 'image', // fallback or you can throw error here
-  })) as { url: string; type: 'video' | 'image' }[], // explicit cast here
-})) as ExtendedPost[]; // final cast for posts array
+    type: m.type === 'video' || m.type === 'image' ? m.type : 'image',
+  })) as { url: string; type: 'video' | 'image' }[], 
+})) as ExtendedPost[]; 
 
 
 
