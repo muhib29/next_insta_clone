@@ -7,9 +7,11 @@ import { useRef } from "react";
 export default function CommentForm({
   postId,
   avatar,
+  mutate,
 }: {
   postId: string;
   avatar: string;
+  mutate: () => void;
 }) {
   const router = useRouter();
   const areaRef = useRef<HTMLTextAreaElement>(null);
@@ -21,6 +23,7 @@ export default function CommentForm({
           areaRef.current.value = '';
         }
         await postComment(data);
+        mutate();
         router.refresh();
       }}
       className="w-full"

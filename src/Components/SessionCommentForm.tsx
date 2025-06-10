@@ -3,7 +3,14 @@
 import { useEffect, useState } from 'react';
 import CommentForm from '@/Components/CommentForm';
 
-export default function SessionCommentForm({ postId }: { postId: string }) {
+export default function SessionCommentForm({
+  postId,
+  mutate,
+}: {
+  postId: string;
+  mutate: () => void;
+}) {
+
   const [avatar, setAvatar] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -24,5 +31,5 @@ export default function SessionCommentForm({ postId }: { postId: string }) {
 
   if (loading || avatar === null) return <p>Loading...</p>;
 
-  return <CommentForm postId={postId} avatar={avatar} />;
+  return <CommentForm postId={postId} avatar={avatar} mutate={mutate}/>;
 }

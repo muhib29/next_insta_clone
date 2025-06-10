@@ -29,6 +29,8 @@ export default function SinglePostContent({
   comments,
   commentsAuthors,
   myBookmark,
+  currectUser,
+  mutate,
 }: {
   post: PostWithMedia;
   authorProfile: Profile | null;
@@ -36,7 +38,10 @@ export default function SinglePostContent({
   comments: CommentModel[];
   commentsAuthors: Profile[];
   myBookmark: Bookmark | null;
+  currectUser: Profile | null;
+  mutate: () => void;
 }) {
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const media = post.media || [];
 
@@ -90,19 +95,18 @@ export default function SinglePostContent({
           <>
             <button
               onClick={handlePrev}
-              className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-40  p-2 rounded-full  text-white hover:bg-opacity-60"
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/30 p-2 rounded-full text-black hover:bg-white/50 shadow-md backdrop-blur-sm transition"
             >
-              <ChevronLeft className="text-white" />
+              <ChevronLeft className="w-5 h-5" />
             </button>
 
             <button
               onClick={handleNext}
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-40  p-2 rounded-full  text-white hover:bg-opacity-60"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/30 p-2 rounded-full text-black hover:bg-white/50 shadow-md backdrop-blur-sm transition"
             >
-              <ChevronRight className="text-white" />
-            </button>
-
-
+              <ChevronRight className="w-5 h-5" />
+            </button> 
+            
             {/* Indicator Dots */}
             <div className="absolute bottom-2 w-full flex justify-center space-x-2">
               {media.map((_, i) => (
@@ -127,6 +131,7 @@ export default function SinglePostContent({
             text={post.description}
             commentsID=""
             showDeleteIcon={false}
+            mutate={mutate}
           />
         </div>
 
@@ -141,7 +146,9 @@ export default function SinglePostContent({
               authorProfile={commentsAuthors.find(
                 (a) => a.email === comment.author
               )}
-              showDeleteIcon={true}
+              showDeleteIcon={currectUser?.email === comment.author}
+              mutate={mutate}
+
             />
           ))}
         </div>
@@ -157,7 +164,7 @@ export default function SinglePostContent({
         {/* Comment Form */}
         <div className="pt-4 border-t border-[#ebebeb] dark:border-neutral-700 mt-2">
           <Suspense fallback={<Preloader />}>
-            <SessionCommentForm postId={post.id} />
+            <SessionCommentForm postId={post.id} mutate={mutate} />
           </Suspense>
         </div>
       </div>

@@ -13,13 +13,16 @@ export default function Comment({
   authorProfile,
   commentsID,
   showDeleteIcon,
+  mutate, // <- add this
 }: {
   text: string;
   createdAt: Date;
   authorProfile?: Profile | null;
   commentsID: string;
   showDeleteIcon: boolean;
+  mutate: () => void;
 }) {
+
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(text); // state for editable text
@@ -27,6 +30,7 @@ export default function Comment({
   const handleDelete = async (commentId: string) => {
     try {
       await deleteComment(commentId);
+      mutate();
       router.refresh();
     } catch (error) {
       console.error("Failed to delete comment:", error);
@@ -38,6 +42,7 @@ export default function Comment({
       try {
         await updateComment(commentsID, editText); // Make sure you have an updateComment function in your actions
         setIsEditing(false);
+        mutate();
         router.refresh();
       } catch (error) {
         console.error("Failed to update comment:", error);

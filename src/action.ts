@@ -57,17 +57,17 @@ export async function postEntry(data: FormData) {
   // const firstVideo = mediaArray.find((m) => m.type === 'video')?.url ?? null;
 
   const postDoc = await prisma.post.create({
-  data: {
-    author: sessionEmail,
-    description,
-    media: {
-      create: mediaArray.map((m) => ({
-        url: m.url,
-        type: m.type,
-      })),
+    data: {
+      author: sessionEmail,
+      description,
+      media: {
+        create: mediaArray.map((m) => ({
+          url: m.url,
+          type: m.type,
+        })),
+      },
     },
-  },
-});
+  });
 
   return postDoc.id;
 }
@@ -101,7 +101,19 @@ export async function deleteComment(commentId: string) {
     where: { id: commentId },
   });
 }
+
 export const updateComment = async (commentId: string, newText: string) => {
+  const authorEmail = await getSessionEmailOrThrow();
+
+  // Find the comment to verify ownership
+  const comment = await prisma.comment.findUnique({
+    where: { id: commentId },
+  });
+
+  if (!comment || comment.author !== authorEmail) {
+    throw new Error("Unauthorized or comment not found");
+  }
+
   try {
     await prisma.comment.update({
       where: { id: commentId },
@@ -112,6 +124,7 @@ export const updateComment = async (commentId: string, newText: string) => {
     throw new Error("Failed to update comment.");
   }
 };
+
 
 export async function updatePostLikesCount(postId: string) {
   await prisma.post.update({
@@ -215,13 +228,17 @@ export async function unbookmarkPost(postId: string) {
 
 export async function getSinglePostData(postId: string) {
   const sessionEmail = await getSessionEmailOrThrow();
+  const currectUser = await prisma.profile.findFirst({
+    where: { email: sessionEmail }
+  });
+
   const post = await prisma.post.findFirstOrThrow({
     where: {
       id: postId
     },
     include: {
-    media: true,
-  },
+      media: true,
+    },
   })
   const authorProfile = await prisma.profile.findFirstOrThrow({
     where: {
@@ -251,9 +268,11 @@ export async function getSinglePostData(postId: string) {
   });
   return {
     post, authorProfile, comments,
-    commentsAuthors, myLike, myBookmark,
+    commentsAuthors, myLike, myBookmark, currectUser
   };
 };
+
+
 
 export async function deletePost(postId: string) {
   const sessionEmail = await getSessionEmailOrThrow();

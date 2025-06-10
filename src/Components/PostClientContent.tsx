@@ -1,15 +1,15 @@
 'use client';
+
 import useSWR from 'swr';
-import SinglePostContent from './SinglePostContent';
 import Preloader from './Preloader';
 import { getSinglePostData } from '@/action';
+import SinglePostContent from './SinglePostContent';
 
 const fetcher = async (postId: string) => {
   return await getSinglePostData(postId);
 };
 
-export default function ModalPostContent({ postId }: { postId: string }) {
-
+export default function PostClientContent({ postId }: { postId: string }) {
   const { data, error, isLoading, mutate } = useSWR(postId, fetcher);
 
   if (isLoading || !data) return <Preloader />;
@@ -28,6 +28,5 @@ export default function ModalPostContent({ postId }: { postId: string }) {
       currectUser={currectUser}
       mutate={mutate}
     />
-
   );
 }
