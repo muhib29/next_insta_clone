@@ -5,15 +5,22 @@ export async function uploadFileSecurely(file: File): Promise<{ IpfsHash: string
   const formData = new FormData();
   formData.append('file', file);
 
-  const res = await fetch('/api/upload', {
+  const PINATA_JWT = process.env.NEXT_PUBLIC_PINATA_JWT; // must be public
+  if (!PINATA_JWT) throw new Error("Missing Pinata JWT");
+
+  const res = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
     method: 'POST',
+    headers: {
+      Authorization: `Bearer ${PINATA_JWT}`,
+    },
     body: formData,
   });
 
+  const result = await res.json();
+
   if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Upload failed: ${err}`);
+    throw new Error(result?.error || 'Pinata upload failed');
   }
 
-  return await res.json();
+  return result;
 }

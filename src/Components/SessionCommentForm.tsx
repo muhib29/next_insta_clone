@@ -10,7 +10,6 @@ export default function SessionCommentForm({
   postId: string;
   mutate: () => void;
 }) {
-
   const [avatar, setAvatar] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -31,5 +30,5 @@ export default function SessionCommentForm({
 
   if (loading || avatar === null) return <p>Loading...</p>;
 
-  return <CommentForm postId={postId} avatar={avatar} mutate={mutate}/>;
+  return <CommentForm postId={postId} avatar={avatar} mutate={mutate} />;
 }

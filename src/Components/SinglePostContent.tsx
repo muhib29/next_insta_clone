@@ -13,11 +13,12 @@ import { Suspense, useState } from "react";
 import SessionCommentForm from "./SessionCommentForm";
 import Preloader from "./Preloader";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 import BookmarkButton from "./BookmarkButton";
 import { useSwipeable } from "react-swipeable";
+import Link from "next/link";
+import { Avatar } from "@radix-ui/themes";
 
-// Post type includes media
 type PostWithMedia = Prisma.PostGetPayload<{
   include: { media: true };
 }>;
@@ -41,16 +42,19 @@ export default function SinglePostContent({
   currectUser: Profile | null;
   mutate: () => void;
 }) {
-
   const [currentIndex, setCurrentIndex] = useState(0);
   const media = post.media || [];
 
   const handlePrev = () => {
-    setCurrentIndex((prev) => (prev === 0 ? media.length - 1 : prev - 1));
+    setCurrentIndex((prev) =>
+      prev === 0 ? media.length - 1 : prev - 1
+    );
   };
 
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev === media.length - 1 ? 0 : prev + 1));
+    setCurrentIndex((prev) =>
+      prev === media.length - 1 ? 0 : prev + 1
+    );
   };
 
   const swipeHandlers = useSwipeable({
@@ -59,110 +63,116 @@ export default function SinglePostContent({
     trackMouse: true,
   });
 
-  if (media.length === 0) {
-    return <div className="text-white text-center p-4">No media available</div>;
-  }
-
   return (
-    <div className="max-w-5xl h-auto md:h-[600px] mx-auto flex flex-col md:flex-row bg-white dark:bg-black border border-[#ebebeb] dark:border-neutral-700 rounded-lg overflow-hidden shadow-sm">
-      {/* Media Section */}
+    <div className="grid max-w-5xl grid-cols-1 md:grid-cols-2 h-full max-h-[calc(100vh-4rem)] mx-auto bg-black border border-neutral-800 rounded-lg shadow-sm">
+      {/* Left: Media */}
       <div
-        className="relative w-full md:w-1/2 bg-black flex justify-center items-center overflow-hidden"
+        className="relative w-full bg-black md:rounded-l-lg flex items-center justify-center"
+        style={{ aspectRatio: "4 / 5", maxHeight: "calc(100vh - 4.5rem)" }}
         {...swipeHandlers}
       >
-        <div className="w-full h-[300px] md:h-full flex justify-center items-center">
-          {media[currentIndex].type === "video" ? (
+        <div className="absolute inset-0 flex items-center justify-center bg-black">
+          {media[currentIndex]?.type === "video" ? (
             <video
               src={media[currentIndex].url}
-              className="max-h-full max-w-full object-contain"
+              className="max-w-full max-h-full object-contain"
               controls
+              autoPlay
               muted
               playsInline
+              key={media[currentIndex].url}
             />
           ) : (
             <Image
-              src={media[currentIndex].url}
-              alt={`Post media ${currentIndex}`}
-              width={500}
-              height={500}
-              className="object-contain max-h-full max-w-full"
+              src={media[currentIndex]?.url || "/placeholder.png"}
+              alt={`Post media ${currentIndex + 1}`}
+              width={1000}
+              height={1000}
+              className="max-w-full max-h-full object-contain"
+              priority
             />
           )}
         </div>
 
-        {/* Navigation Buttons */}
         {media.length > 1 && (
           <>
             <button
               onClick={handlePrev}
-              className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/30 p-2 rounded-full text-black hover:bg-white/50 shadow-md backdrop-blur-sm transition"
+              className="absolute left-3 top-1/2 -translate-y-1/2 bg-neutral-900/50 p-2 rounded-full text-white hover:bg-neutral-700/70 backdrop-blur-sm"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
-
             <button
               onClick={handleNext}
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/30 p-2 rounded-full text-black hover:bg-white/50 shadow-md backdrop-blur-sm transition"
+              className="absolute right-3 top-1/2 -translate-y-1/2 bg-neutral-900/50 p-2 rounded-full text-white hover:bg-neutral-700/70 backdrop-blur-sm"
             >
               <ChevronRight className="w-5 h-5" />
-            </button> 
-            
-            {/* Indicator Dots */}
-            <div className="absolute bottom-2 w-full flex justify-center space-x-2">
+            </button>
+            <div className="absolute bottom-4 w-full flex justify-center gap-1">
               {media.map((_, i) => (
                 <div
                   key={i}
-                  className={`w-2 h-2 rounded-full ${i === currentIndex ? "bg-white" : "bg-white/30"}`}
+                  className={`w-2 h-2 rounded-full ${i === currentIndex ? "bg-white" : "bg-neutral-500"}`}
                 />
               ))}
-
             </div>
           </>
         )}
       </div>
 
-      {/* Content Section */}
-      <div className="md:w-1/2 flex flex-col justify-between p-4">
-        {/* Description */}
-        <div className="mb-4 border-b border-[#ebebeb] dark:border-neutral-700 pb-2">
-          <Comment
-            authorProfile={authorProfile}
-            createdAt={post.createdAt}
-            text={post.description}
-            commentsID=""
-            showDeleteIcon={false}
-            mutate={mutate}
-          />
+      {/* Right: Comments and Actions */}
+      <div className="flex flex-col bg-black text-white">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-neutral-800">
+          <Link
+            href={`/users/${authorProfile?.username}`}
+            className="flex items-center gap-3"
+          >
+            <Avatar className="w-10 h-10" fallback="IMG" src={authorProfile?.avatar || ""} />
+            <span className="font-semibold text-sm">{authorProfile?.username}</span>
+          </Link>
+          <MoreHorizontal className="text-white cursor-pointer" />
         </div>
 
-        {/* Comments */}
-        <div className="flex-1 overflow-y-scroll space-y-4 max-h-[30vh] md:max-h-[40vh] pr-1 scrollbar-thin scrollbar-thumb-neutral-700">
-          {comments.map((comment) => (
+        {/* Scrollable Comments Area */}
+        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 scrollbar-thin scrollbar-thumb-neutral-600 scrollbar-track-transparent">
+          {post.description && (
             <Comment
-              key={comment.id}
-              createdAt={comment.createdAt}
-              text={comment.text}
-              commentsID={comment.id}
-              authorProfile={commentsAuthors.find(
-                (a) => a.email === comment.author
-              )}
-              showDeleteIcon={currectUser?.email === comment.author}
+              authorProfile={authorProfile}
+              createdAt={post.createdAt}
+              text={post.description}
+              commentsID=""
+              showDeleteIcon={false}
               mutate={mutate}
-
+              currectUser={currectUser}
             />
-          ))}
+          )}
+          {comments.length > 0 ? (
+            comments.map((comment) => (
+              <Comment
+                key={comment.id}
+                createdAt={comment.createdAt}
+                text={comment.text}
+                commentsID={comment.id}
+                authorProfile={commentsAuthors.find((a) => a.email === comment.author)}
+                showDeleteIcon={currectUser?.email === comment.author}
+                mutate={mutate}
+                currectUser={currectUser}
+              />
+            ))
+          ) : (
+            <p className="text-sm text-neutral-400">No comments yet. Start the conversation.</p>
+          )}
         </div>
 
-        {/* Likes + Bookmark */}
-        <div className="flex text-gray-700 dark:text-gray-400 items-center gap-2 justify-between py-4 mt-4 border-t border-gray-300 dark:border-gray-700">
-          <LikesInfo post={post} sessionLike={myLike} showText={false} />
-          <div className="flex items-center">
-            <BookmarkButton post={post} sessionBookmark={myBookmark} />
-          </div>
+        {/* Like & Bookmark */}
+        <div className="px-4 py-3 border-t border-neutral-800 flex justify-between items-center">
+          <LikesInfo post={post} sessionLike={myLike} showText />
+          <BookmarkButton post={post} sessionBookmark={myBookmark} />
         </div>
 
-        {/* Comment Form */}
-        <div className="pt-4 border-t border-[#ebebeb] dark:border-neutral-700 mt-2">
+        {/* Add Comment */}
+        <div className="px-4 py-3   border-t border-neutral-800">
           <Suspense fallback={<Preloader />}>
             <SessionCommentForm postId={post.id} mutate={mutate} />
           </Suspense>

@@ -4,9 +4,10 @@ import { CloudUploadIcon, SendIcon } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { postEntry } from "@/action";
-// import { uploadFileToPinataClient } from "../../../../utils/uploadToPinata";
 import Image from "next/image";
-import { uploadFileSecurely } from "../../../../utils/uploadToPinata";
+// Import the vercel/blob client-side upload function
+import { upload } from '@vercel/blob/client';
+
 export default function CreatePage() {
 
   const [isUploading, setIsUploading] = useState(false);
@@ -19,37 +20,70 @@ export default function CreatePage() {
     { url: string; type: 'image' | 'video' }[]
   >([]);
 
-
+  // *** REVISED UPLOAD LOGIC ***
   useEffect(() => {
     async function uploadAll() {
+      if (files.length === 0) return;
+
       setIsUploading(true);
-      const uploads = await Promise.all(
-        files.map(async ({ file, type }) => {
-          const { IpfsHash } = await uploadFileSecurely(file);
-          return {
-            url: `https://gateway.pinata.cloud/ipfs/${IpfsHash}`,
-            type,
-          };
-        })
-      );
-      setUploadedMedia(uploads);
-      setIsUploading(false);
+
+      try {
+        const uploads = await Promise.all(
+          files.map(async ({ file, type }) => {
+            // 1. Upload directly to Vercel Blob from the client
+            const newBlob = await upload(file.name, file, {
+              access: 'public',
+              // This is the API route that generates the upload token
+              handleUploadUrl: '/api/blob-upload-url',
+            });
+
+            // 2. Pass the Vercel Blob URL to our secure server route for Pinata pinning
+            const pinRes = await fetch('/api/upload', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ blobUrl: newBlob.url, filename: file.name, type }),
+            });
+
+            if (!pinRes.ok) {
+              throw new Error('Failed to pin file to IPFS.');
+            }
+
+            const { IpfsHash } = await pinRes.json();
+
+            // 3. Return the final Pinata gateway URL
+            return {
+              url: `https://gateway.pinata.cloud/ipfs/${IpfsHash}`,
+              type,
+            };
+          })
+        );
+        setUploadedMedia((prev) => [...prev, ...uploads]);
+      } catch (error) {
+        console.error("Upload failed:", error);
+        // Handle error state for the user here
+      } finally {
+        setIsUploading(false);
+        // Clear the files array after successful upload
+        setFiles([]);
+      }
     }
 
-    if (files.length > 0) uploadAll();
+    uploadAll();
   }, [files]);
 
 
-useEffect(() => {
-  return () => {
-    files.forEach(({ previewUrl }) => URL.revokeObjectURL(previewUrl));
-  };
-}, [files]);
+  useEffect(() => {
+    // This cleanup function still works perfectly
+    return () => {
+      files.forEach(({ previewUrl }) => URL.revokeObjectURL(previewUrl));
+    };
+  }, [files]);
 
 
   function getMediaType(file: File): "image" | "video" {
     return file.type.startsWith("video/") ? "video" : "image";
   }
+
   return (
     <form
       className="max-w-md mx-auto"
@@ -69,17 +103,18 @@ useEffect(() => {
         router.refresh();
       }}
     >
+      {/* --- The rest of your JSX is perfect, no changes needed below --- */}
       <div className="flex flex-col gap-4">
         <div>
           <div className="relative w-full h-64 bg-gray-200 rounded-md overflow-hidden">
-            {files.length > 0 ? (
+            {uploadedMedia.length > 0 ? (
               <div className="grid grid-cols-2 gap-2 p-2">
-                {files.map(({ previewUrl, type }, idx) => (
+                {uploadedMedia.map(({ url, type }, idx) => (
                   <div key={idx} className="relative w-full h-40">
                     {type === "video" ? (
-                      <video src={previewUrl} className="w-full h-full object-cover" controls />
+                      <video src={url} className="w-full h-full object-cover" controls />
                     ) : (
-                      <Image src={previewUrl} fill className="object-cover" alt={`preview-${idx}`} />
+                      <Image src={url} fill className="object-cover" alt={`uploaded-media-${idx}`} />
                     )}
                   </div>
                 ))}
@@ -109,10 +144,9 @@ useEffect(() => {
                     const type: 'image' | 'video' = getMediaType(file);
                     return { file, previewUrl, type };
                   });
-
-                  setFiles((prev) => [...prev, ...previews]); // Append new files
+                  // Set files to trigger the useEffect
+                  setFiles(previews);
                 }}
-
                 accept="image/*,video/*"
               />
               <Button
@@ -121,7 +155,7 @@ useEffect(() => {
                 type="button"
                 variant="surface"
               >
-                {isUploading ? 'Uploading...' : <><CloudUploadIcon size={16} /> Choose image</>}
+                {isUploading ? 'Uploading...' : <><CloudUploadIcon size={16} /> Choose Media</>}
               </Button>
             </div>
           </div>
@@ -130,7 +164,7 @@ useEffect(() => {
             <TextArea
               name="description"
               className="h-16"
-              placeholder="Add photo description..."
+              placeholder="Add a description..."
             />
           </div>
         </div>

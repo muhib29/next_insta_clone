@@ -1,4 +1,5 @@
 'use client';
+
 import { Avatar } from "@radix-ui/themes";
 import { format } from 'date-fns';
 import { DeleteIcon, Edit2Icon, Verified } from "lucide-react";
@@ -6,6 +7,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { deleteComment, updateComment } from "@/action";
 import { Profile } from "@prisma/client";
+import Link from "next/link";
 
 export default function Comment({
   text,
@@ -13,7 +15,8 @@ export default function Comment({
   authorProfile,
   commentsID,
   showDeleteIcon,
-  mutate, // <- add this
+  mutate,
+  currectUser,
 }: {
   text: string;
   createdAt: Date;
@@ -21,11 +24,11 @@ export default function Comment({
   commentsID: string;
   showDeleteIcon: boolean;
   mutate: () => void;
+  currectUser?: { email: string } | null;
 }) {
-
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
-  const [editText, setEditText] = useState(text); // state for editable text
+  const [editText, setEditText] = useState(text);
 
   const handleDelete = async (commentId: string) => {
     try {
@@ -38,9 +41,9 @@ export default function Comment({
   };
 
   const handleEdit = async () => {
-    if (editText !== text) { // Check if the text is changed
+    if (editText !== text) {
       try {
-        await updateComment(commentsID, editText); // Make sure you have an updateComment function in your actions
+        await updateComment(commentsID, editText);
         setIsEditing(false);
         mutate();
         router.refresh();
@@ -53,65 +56,49 @@ export default function Comment({
   };
 
   return (
-<div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
-  <Avatar fallback="image" src={authorProfile?.avatar || ''} />
-  <div className="w-full">
-    <div className="flex justify-between gap-2">
-      <div>
-        <h3 className="flex gap-1 items-center dark:text-gray-300 text-sm sm:text-base">
-          {authorProfile?.name}
-          <Verified className="w-4 h-4 text-blue-500" />
-        </h3>
-        <h4 className="text-gray-600 dark:text-gray-500 text-xs sm:text-sm -mt-1">
-          @{authorProfile?.username}
-        </h4>
-      </div>
-    </div>
+    <div className="flex gap-3">
+      <Link href={currectUser?.email === authorProfile?.email ? "/profile" : `/users/${authorProfile?.username}`}>
+        <Avatar className="w-9 h-9 rounded-full" fallback="IMG" src={authorProfile?.avatar || ''} />
+      </Link>
 
-    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 bg-gray-200 dark:bg-[#363636] border dark:border-0 dark:text-gray-400 border-gray-300 rounded-md p-3 mt-2">
-      <div className="w-full">
-        {isEditing ? (
-          <textarea
-            className="w-full p-2 border dark:border-gray-600 rounded-md resize-none text-sm"
-            rows={3}
-            value={editText}
-            onChange={(e) => setEditText(e.target.value)}
-          />
-        ) : (
-          <p className="text-sm">{text}</p>
-        )}
-      </div>
-      {showDeleteIcon && (
-        <div className="flex gap-2 mt-2 sm:mt-0">
-          {isEditing ? (
-            <button
-              className="text-sm text-blue-500 hover:underline"
-              onClick={handleEdit}
-            >
-              Save
-            </button>
-          ) : (
-            <button
-              className="text-gray-500 hover:text-gray-700 dark:hover:text-white"
-              onClick={() => setIsEditing(true)}
-            >
-              <Edit2Icon className="w-4 h-4" />
-            </button>
+      <div className="flex-1">
+        <div className="flex justify-between items-start">
+          <div className="flex items-center gap-2">
+            <Link href={currectUser?.email === authorProfile?.email ? "/profile" : `/users/${authorProfile?.username}`}>
+              <span className="text-sm font-medium">{authorProfile?.username}</span>
+            </Link>
+            <Verified className="w-4 h-4 text-blue-500" />
+          </div>
+
+          {showDeleteIcon && (
+            <div className="flex gap-2 text-sm text-neutral-400">
+              {isEditing ? (
+                <button onClick={handleEdit} className="text-blue-500 hover:underline">Save</button>
+              ) : (
+                <button onClick={() => setIsEditing(true)}><Edit2Icon className="w-4 h-4" /></button>
+              )}
+              <button onClick={() => handleDelete(commentsID)}><DeleteIcon className="w-4 h-4 text-red-500" /></button>
+            </div>
           )}
-          <button
-            className="text-red-500 hover:text-red-700"
-            onClick={() => handleDelete(commentsID)}
-          >
-            <DeleteIcon className="w-4 h-4" />
-          </button>
         </div>
-      )}
-    </div>
-    <div className="text-xs text-gray-400 text-right mt-1">
-      {format(createdAt, 'yyyy-MM-dd HH:mm:ss')}
-    </div>
-  </div>
-</div>
 
+        <div className="mt-1">
+          {isEditing ? (
+            <textarea
+              className="w-full text-sm bg-neutral-800 p-2 rounded-md text-white"
+              rows={2}
+              value={editText}
+              onChange={(e) => setEditText(e.target.value)}
+            />
+          ) : (
+            <p className="text-sm text-white">{text}</p>
+          )}
+        </div>
+
+        <span className="text-xs text-neutral-500 mt-1 block">
+          {format(createdAt, "MMM dd, yyyy")}
+        </span>
+      </div>
+    </div>
   );
 }
