@@ -1,5 +1,5 @@
 'use client';
-import { Avatar, Button, TextArea } from "@radix-ui/themes";
+import { Avatar, Button } from "@radix-ui/themes";
 import { postComment } from "../action";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
@@ -37,13 +37,17 @@ export default function CommentForm({
 
         {/* Textarea and Button */}
         <div className="w-full flex flex-col gap-2">
-          <TextArea
+          <textarea
             ref={areaRef}
             name="text"
             placeholder="Tell the world what you think..."
-            className="resize-none text-sm"
             rows={3}
-          />
+            className="resize-none text-sm bg-white text-black dark:bg-black dark:text-white 
+              placeholder:text-neutral-500 dark:placeholder:text-neutral-400 
+              p-3 rounded-md border border-zinc-300 dark:border-zinc-700 
+              focus:outline-none focus:ring-2 focus:ring-zinc-300  dark:focus:ring-zinc-500 focus:ring-offset-0 
+              transition"
+                      />
           <div className="self-end">
             <Button size="2">Post comment</Button>
           </div>

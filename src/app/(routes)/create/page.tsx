@@ -5,7 +5,6 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { postEntry } from "@/action";
 import Image from "next/image";
-// Import the vercel/blob client-side upload function
 import { upload } from '@vercel/blob/client';
 
 export default function CreatePage() {
@@ -33,9 +32,10 @@ export default function CreatePage() {
             // 1. Upload directly to Vercel Blob from the client
             const newBlob = await upload(file.name, file, {
               access: 'public',
-              // This is the API route that generates the upload token
-              handleUploadUrl: '/api/blob-upload-url',
+              handleUploadUrl: '/api/blob-upload-url', // 👈 only needed here
             });
+
+
 
             // 2. Pass the Vercel Blob URL to our secure server route for Pinata pinning
             const pinRes = await fetch('/api/upload', {

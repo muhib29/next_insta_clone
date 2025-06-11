@@ -1,15 +1,16 @@
-// app/api/upload/route.ts
+// app/api/upload/route.
+
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
   const { blobUrl, filename } = await req.json();
 
   const fileRes = await fetch(blobUrl);
-  const buffer = Buffer.from(await fileRes.arrayBuffer());
+  const arrayBuffer = await fileRes.arrayBuffer();
+  const blob = new Blob([arrayBuffer]); 
 
   const pinataFormData = new FormData();
-  pinataFormData.append('file', new Blob([buffer]), filename);
-
+  pinataFormData.append('file', blob, filename); 
   const PINATA_JWT = process.env.PINATA_JWT;
   if (!PINATA_JWT) {
     return NextResponse.json({ error: 'Missing PINATA_JWT' }, { status: 500 });

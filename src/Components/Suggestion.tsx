@@ -38,17 +38,17 @@ export default async function Suggestion({
       },
     },
     include: {
-      followerProfile: true,
+      followerProfile: true,  
     },
   });
 
   return (
-    <div className="hidden md:block w-full p-4 rounded-2xl bg-white dark:bg-zinc-900 shadow-lg transition-colors">
+    <div className="w-full p-4 rounded-2xl bg-white border border-zinc-300 dark:border-zinc-800 dark:bg-black shadow-md transition-colors">
       <h3 className="text-base font-semibold text-gray-800 dark:text-gray-300 mb-4">
         {suggestedProfiles.length > 0
           ? "Suggestions For You"
           : "No Suggestions Right Now"}
-      </h3>
+      </h3> 
 
       <div className="space-y-4">
         {suggestedProfiles.map((profile) => {
@@ -64,20 +64,19 @@ export default async function Suggestion({
             >
               <Link
                 href={`/users/${profile?.username}`}
-                className="flex items-center gap-3"
+                className="flex items-center gap-3 flex-1 min-w-0"
               >
                 <Avatar src={profile.avatar || ""} />
-                <div className="w-40 truncate">
+                <div className="min-w-0">
                   <p className="text-sm font-semibold text-zinc-900 dark:text-white truncate">
                     {profile.username}
                   </p>
                   <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
                     {firstMutual
-                      ? `Followed by ${firstMutual}${
-                          mutuals.length > 1
-                            ? ` and ${mutuals.length - 1} others`
-                            : ""
-                        }`
+                      ? `Followed by ${firstMutual}${mutuals.length > 1
+                        ? ` and ${mutuals.length - 1} others`
+                        : ""
+                      }`
                       : "Suggested for you"}
                   </p>
                 </div>
@@ -116,5 +115,6 @@ export default async function Suggestion({
         </p>
       </div>
     </div>
+
   );
 }

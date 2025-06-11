@@ -64,14 +64,14 @@ export default function SinglePostContent({
   });
 
   return (
-    <div className="grid max-w-5xl grid-cols-1 md:grid-cols-2 h-full max-h-[calc(100vh-4rem)] mx-auto bg-black border border-neutral-800 rounded-lg shadow-sm">
+    <div className="grid max-w-5xl grid-cols-1 md:grid-cols-2 h-full max-h-[calc(100vh-4rem)] mx-auto bg-white dark:bg-black border border-zinc-300 dark:border-zinc-800 rounded-lg shadow-sm">
       {/* Left: Media */}
       <div
-        className="relative w-full bg-black md:rounded-l-lg flex items-center justify-center"
+        className="relative w-full  bg-white dark:bg-black   md:rounded-l-lg flex items-center justify-center"
         style={{ aspectRatio: "4 / 5", maxHeight: "calc(100vh - 4.5rem)" }}
         {...swipeHandlers}
       >
-        <div className="absolute inset-0 flex items-center justify-center bg-black">
+        <div className="absolute inset-0 flex items-center justify-center  bg-white dark:bg-black ">
           {media[currentIndex]?.type === "video" ? (
             <video
               src={media[currentIndex].url}
@@ -98,44 +98,47 @@ export default function SinglePostContent({
           <>
             <button
               onClick={handlePrev}
-              className="absolute left-3 top-1/2 -translate-y-1/2 bg-neutral-900/50 p-2 rounded-full text-white hover:bg-neutral-700/70 backdrop-blur-sm"
+              className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/70 dark:bg-zinc-800/70 p-2 rounded-full text-black dark:text-white hover:bg-white/90 dark:hover:bg-zinc-700/70 backdrop-blur-sm transition"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
+
             <button
               onClick={handleNext}
-              className="absolute right-3 top-1/2 -translate-y-1/2 bg-neutral-900/50 p-2 rounded-full text-white hover:bg-neutral-700/70 backdrop-blur-sm"
+              className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/70 dark:bg-zinc-800/70 p-2 rounded-full text-black dark:text-white hover:bg-white/90 dark:hover:bg-zinc-700/70 backdrop-blur-sm transition"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
+
             <div className="absolute bottom-4 w-full flex justify-center gap-1">
               {media.map((_, i) => (
                 <div
                   key={i}
-                  className={`w-2 h-2 rounded-full ${i === currentIndex ? "bg-white" : "bg-neutral-500"}`}
+                  className={`w-2 h-2 rounded-full transition ${i === currentIndex ? "bg-zinc-900 dark:bg-white" : "bg-zinc-400 dark:bg-zinc-600"}`}
                 />
               ))}
             </div>
+
           </>
         )}
       </div>
 
       {/* Right: Comments and Actions */}
-      <div className="flex flex-col bg-black text-white">
+      <div className="flex flex-col  bg-white dark:bg-black ">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-neutral-800">
+        <div className="flex items-center justify-between p-4 border-b border-zinc-300 dark:border-zinc-700 bg-white dark:bg-black">
           <Link
             href={`/users/${authorProfile?.username}`}
             className="flex items-center gap-3"
           >
             <Avatar className="w-10 h-10" fallback="IMG" src={authorProfile?.avatar || ""} />
-            <span className="font-semibold text-sm">{authorProfile?.username}</span>
+            <span className="font-semibold text-sm text-black dark:text-white">{authorProfile?.username}</span>
           </Link>
           <MoreHorizontal className="text-white cursor-pointer" />
         </div>
 
         {/* Scrollable Comments Area */}
-        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 scrollbar-thin scrollbar-thumb-neutral-600 scrollbar-track-transparent">
+        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 scrollbar-thin scrollbar-thumb-zinc-500 dark:scrollbar-thumb-zinc-700 scrollbar-track-transparent">
           {post.description && (
             <Comment
               authorProfile={authorProfile}
@@ -161,18 +164,18 @@ export default function SinglePostContent({
               />
             ))
           ) : (
-            <p className="text-sm text-neutral-400">No comments yet. Start the conversation.</p>
+            <p className="text-sm text-zinc-700 dark:text-zinc-300">No comments yet. Start the conversation.</p>
           )}
         </div>
 
         {/* Like & Bookmark */}
-        <div className="px-4 py-3 border-t border-neutral-800 flex justify-between items-center">
+        <div className="px-4 py-3 border-t border-zinc-300 dark:border-zinc-700 flex justify-between items-center bg-white  dark:bg-black">
           <LikesInfo post={post} sessionLike={myLike} showText />
           <BookmarkButton post={post} sessionBookmark={myBookmark} />
         </div>
 
         {/* Add Comment */}
-        <div className="px-4 py-3   border-t border-neutral-800">
+        <div className="px-4 py-3 border-t border-zinc-300 dark:border-zinc-700 bg-white dark:bg-black">
           <Suspense fallback={<Preloader />}>
             <SessionCommentForm postId={post.id} mutate={mutate} />
           </Suspense>

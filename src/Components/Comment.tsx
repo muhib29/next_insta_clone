@@ -2,7 +2,7 @@
 
 import { Avatar } from "@radix-ui/themes";
 import { format } from 'date-fns';
-import { DeleteIcon, Edit2Icon, Verified } from "lucide-react";
+import {  Edit2Icon, Trash2Icon, Verified } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { deleteComment, updateComment } from "@/action";
@@ -54,7 +54,6 @@ export default function Comment({
       setIsEditing(false);
     }
   };
-
   return (
     <div className="flex gap-3">
       <Link href={currectUser?.email === authorProfile?.email ? "/profile" : `/users/${authorProfile?.username}`}>
@@ -65,19 +64,23 @@ export default function Comment({
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-2">
             <Link href={currectUser?.email === authorProfile?.email ? "/profile" : `/users/${authorProfile?.username}`}>
-              <span className="text-sm font-medium">{authorProfile?.username}</span>
+              <span className="text-sm font-medium text-black dark:text-white hover:underline transition">{authorProfile?.username}</span>
             </Link>
             <Verified className="w-4 h-4 text-blue-500" />
           </div>
 
           {showDeleteIcon && (
-            <div className="flex gap-2 text-sm text-neutral-400">
+            <div className="flex gap-2 text-sm text-neutral-500 dark:text-neutral-400">
               {isEditing ? (
-                <button onClick={handleEdit} className="text-blue-500 hover:underline">Save</button>
+                <button onClick={handleEdit} className="text-blue-500 hover:underline transition">Save</button>
               ) : (
-                <button onClick={() => setIsEditing(true)}><Edit2Icon className="w-4 h-4" /></button>
+                <button onClick={() => setIsEditing(true)} className="hover:text-blue-500 transition">
+                  <Edit2Icon className="w-4 h-4" />
+                </button>
               )}
-              <button onClick={() => handleDelete(commentsID)}><DeleteIcon className="w-4 h-4 text-red-500" /></button>
+              <button onClick={() => handleDelete(commentsID)} className="hover:text-red-500 transition">
+                <Trash2Icon className="w-4 h-4" />
+              </button>
             </div>
           )}
         </div>
@@ -85,17 +88,17 @@ export default function Comment({
         <div className="mt-1">
           {isEditing ? (
             <textarea
-              className="w-full text-sm bg-neutral-800 p-2 rounded-md text-white"
+              className="w-full text-sm bg-neutral-100 dark:bg-neutral-800 p-2 rounded-md text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               rows={2}
               value={editText}
               onChange={(e) => setEditText(e.target.value)}
             />
           ) : (
-            <p className="text-sm text-white">{text}</p>
+            <p className="text-sm text-black dark:text-neutral-200">{text}</p>
           )}
         </div>
 
-        <span className="text-xs text-neutral-500 mt-1 block">
+        <span className="text-xs text-neutral-500 dark:text-neutral-400 mt-1 block">
           {format(createdAt, "MMM dd, yyyy")}
         </span>
       </div>

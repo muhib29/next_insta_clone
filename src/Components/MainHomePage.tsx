@@ -62,23 +62,23 @@ export default async function MainHomePage() {
   });
 
   // Map posts to include image/video as before
-const posts = postsRaw.map((post) => {
-  // Explicitly cast media type string to MediaType
-  const media: ExtendedMedia[] = post.media.map((m) => ({
-    ...m,
-    type: m.type === "video" ? "video" : "image", // force type to MediaType
-  }));
+  const posts = postsRaw.map((post) => {
+    // Explicitly cast media type string to MediaType
+    const media: ExtendedMedia[] = post.media.map((m) => ({
+      ...m,
+      type: m.type === "video" ? "video" : "image", // force type to MediaType
+    }));
 
-  const image = media.find((m) => m.type === "image")?.url ?? null;
-  const video = media.find((m) => m.type === "video")?.url ?? null;
+    const image = media.find((m) => m.type === "image")?.url ?? null;
+    const video = media.find((m) => m.type === "video")?.url ?? null;
 
-  return {
-    ...post,
-    media,
-    image,
-    video,
-  };
-});
+    return {
+      ...post,
+      media,
+      image,
+      video,
+    };
+  });
 
   // Fetch likes and bookmarks by current user on these posts
   const likes = await prisma.like.findMany({
@@ -94,47 +94,50 @@ const posts = postsRaw.map((post) => {
       postId: { in: posts.map((p) => p.id) },
     },
   });
-
   return (
-    <div className="max-w-5xl w-full mx-auto flex gap-8 px-0 lg:px-8">
-      <div className="flex-1 max-w-2xl">
+    <div className="flex flex-col lg:flex-row gap-8 px-4 lg:px-8 max-w-7xl mx-auto">
+      {/* Left/Main Feed */}
+      <div className="w-full lg:w-2/3 xl:w-3/5">
         {hasFollowers ? (
           <>
             <StoryBar profiles={profiles} />
+
+            {/* Mobile-only suggestions carousel */}
             <div className="md:hidden mt-6 flex justify-center">
               <SuggestedProfilesCarousel currentUserId={currentUser.id} />
             </div>
-            <UserHome
-              profiles={profiles}
-              posts={posts}
-              likes={likes}
-              bookmarks={bookmarks}
-              sessionEmail={session.user.email}
-            />
+
+            {posts?.length === 0 ? (
+              <div className="mt-8 flex justify-center flex-col text-center text-gray-500">
+                <p>It&rsquo;s a bit quiet here. Inspire your followers to share something!</p>
+
+              </div>
+            ) : (
+              <UserHome
+                profiles={profiles}
+                posts={posts}
+                likes={likes}
+                bookmarks={bookmarks}
+                sessionEmail={session.user.email}
+              />
+            )}
           </>
         ) : (
           <>
-            <div className="md:hidden block mt-6">
+            <div className="md:hidden mt-6 flex justify-center">
               <SuggestedProfilesCarousel currentUserId={currentUser.id} />
             </div>
-            <div className="mt-8 md:text-center text-left text-gray-500">
-              <p>You’re not following anyone yet.</p>
+            <div className="mt-8 flex justify-center flex-col text-center text-gray-500">
+              <p>You&rsquo;re not following anyone yet.</p>
+
               <p>Here are some people you might want to follow:</p>
             </div>
           </>
         )}
       </div>
 
-      <div
-        className="
-          hidden 
-          lg:block 
-          w-2/5
-          max-[1250px]:w-1/2
-          max-[1050px]:w-1/2 
-          min-[1000px]:block
-        "
-      >
+      {/* Right Sidebar */}
+      <div className="hidden md:block w-[455px] lg:w-1/3 xl:w-2/5">
         <Suggestion follows={follows} />
       </div>
     </div>

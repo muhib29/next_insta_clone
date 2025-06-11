@@ -111,7 +111,7 @@ export default function PostGrid({
                 ) : null}
 
                 {/* Overlay for likes/comments */}
-                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-60 transition-opacity duration-300">
+                <div className="absolute inset-0 flex items-center justify-center bg-white dark:bg-black bg-opacity-50 opacity-0 group-hover:opacity-60 transition-opacity duration-300">
                   <div className="text-white text-center z-50 flex gap-5 sm:gap-2 text-md sm:text-sm">
                     <p className="font-semibold flex items-center gap-2 sm:gap-1">
                       <HeartIcon className="w-5 h-5 sm:w-4 sm:h-4" />
