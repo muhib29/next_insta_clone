@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button, Switch, TextArea, TextField } from "@radix-ui/themes";
 import { CloudUploadIcon, LogOutIcon } from "lucide-react";
-import {  updateProfile } from "@/action";
+import { updateProfile } from "@/action";
 import { useRouter } from "next/navigation";
 import { Profile } from "@prisma/client";
 import Image from "next/image";
@@ -28,7 +28,7 @@ export default function SettingsForm({ profile }: { profile: Profile | null }) {
         const data = new FormData();
         data.set("file", file);
         try {
-         const res = await fetch("/api/upload", {
+          const res = await fetch("/api/uploadProfile", {
             method: "POST",
             body: data,
           });
@@ -56,10 +56,10 @@ export default function SettingsForm({ profile }: { profile: Profile | null }) {
     localStorage.setItem("theme", theme);
   };
 
-const handleLogout = async () => {
-  const { signOut } = await import("next-auth/react");
-  signOut({ redirect: true ,  callbackUrl: "/" });
-};
+  const handleLogout = async () => {
+    const { signOut } = await import("next-auth/react");
+    signOut({ redirect: true, callbackUrl: "/" });
+  };
 
 
   return (
@@ -74,32 +74,16 @@ const handleLogout = async () => {
         <input type="hidden" name="avatar" value={avatarUrl || ""} />
 
         <div className="flex gap-4 items-center mb-6">
-          <div className="bg-black size-24 rounded-full overflow-hidden aspect-square shadow-md shadow-gray-400">
-            {/* {avatarUrl ? (
-              <Image
-                src={avatarUrl || '/userIcon.png'}
-                alt="Avatar"  
-                className="w-full h-full object-cover"
-                width={96}
-                height={96}
-              />
-            ) : (
-              <Image
-                src="/userImage.png"
-                alt="Default Avatar"
-                fill
-                style={{ objectFit: 'cover' }}
-                quality={100}
-              />
-            )} */}
-                          <Image
-                src={avatarUrl || '/userIcon.png'}
-                alt="Avatar"
-                className="w-full h-full object-cover"
-                width={96}
-                height={96}
-              />
+          <div className="size-24 rounded-full overflow-hidden aspect-square shadow-md shadow-gray-400 bg-gray-200 relative">
+            <Image
+              src={avatarUrl || "/userIcon.png"}
+              alt="Avatar"
+              fill
+              className="object-cover"
+              priority
+            />
           </div>
+
           <div>
             <input
               type="file"

@@ -9,10 +9,12 @@ export default function LikesInfo({
   post,
   sessionLike,
   showText,
+  mutate,
 }: {
   post: Post;
   sessionLike: Like | null;
   showText: boolean;
+  mutate: () => void;
 }) {
   const [likedByMe, setLikedByMe] = useState(!!sessionLike);
   const [isPending, startTransition] = useTransition();
@@ -25,20 +27,18 @@ export default function LikesInfo({
       } else {
         await likePost(formData);
       }
+
+      // Optimistically update UI without full refresh
+      mutate(); // This refetches the posts
+      router.refresh();
       setLikedByMe((prev) => !prev);
-      startTransition(() => {
-        router.refresh();
-      });
     } catch (err) {
       console.error("Error updating like:", err);
     }
   };
 
   return (
-    <form
-      action={handleLikeToggle}
-      className="flex items-center gap-2"
-    >
+    <form action={handleLikeToggle} className="flex items-center gap-2">
       <input type="hidden" name="postId" value={post.id} />
       <button
         type="submit"
@@ -47,9 +47,7 @@ export default function LikesInfo({
         title={likedByMe ? "Unlike" : "Like"}
       >
         <HeartIcon
-          className={`w-6 h-6 transition-colors duration-200 ${
-            likedByMe ? 'text-red-500 fill-red-500' : 'text-gray-500 dark:text-white'
-          }`}
+          className={`w-6 h-6 transition-colors duration-200 ${likedByMe ? 'text-red-500 fill-red-500' : 'text-gray-500 dark:text-white'}`}
         />
       </button>
       {showText && (
@@ -60,4 +58,3 @@ export default function LikesInfo({
     </form>
   );
 }
-  

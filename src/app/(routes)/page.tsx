@@ -6,7 +6,7 @@ import Preloader from "@/Components/Preloader";
 import { Suspense } from "react";
 export default async function Home() {
   const session = await auth();
-
+  
   if (!session?.user?.email) {
     redirect("/");
   }

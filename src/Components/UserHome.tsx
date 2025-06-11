@@ -1,4 +1,4 @@
-"use client"; 
+"use client";
 
 import { useState } from "react";
 import LikesInfo from "@/Components/LikesInfo";
@@ -8,6 +8,7 @@ import { MessageCircle, Verified, ChevronLeft, ChevronRight } from "lucide-react
 import Link from "next/link";
 import BookMarkButton from "./BookmarkButton";
 import Image from "next/image";
+import { mutate } from "swr";
 
 type MediaType = "image" | "video";
 
@@ -123,6 +124,7 @@ export default function UserHome({
                           controls
                           preload="auto"
                           muted
+                          autoPlay
                           playsInline
                         />
                       ) : (
@@ -192,7 +194,9 @@ export default function UserHome({
                   post={post}
                   showText={false}
                   sessionLike={likes.find((like) => like.postId === post.id) || null}
+                  mutate={async () => {}} 
                 />
+
                 <Link href={`/posts/${post.id}`} className="hover:opacity-70">
                   <MessageCircle className="w-6 h-6" />
                 </Link>

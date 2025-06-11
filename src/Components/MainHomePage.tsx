@@ -15,6 +15,7 @@ type ExtendedMedia = {
 };
 
 export default async function MainHomePage() {
+  
   const session = await auth();
 
   if (!session?.user?.email) return null;

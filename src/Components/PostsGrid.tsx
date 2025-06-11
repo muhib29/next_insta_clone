@@ -30,9 +30,8 @@ export default function PostGrid({
     toast.custom(
       (t) => (
         <div
-          className={`max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5 ${
-            t.visible ? 'animate-enter' : 'animate-leave'
-          }`}
+          className={`max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5 ${t.visible ? 'animate-enter' : 'animate-leave'
+            }`}
           role="alert"
           aria-live="assertive"
         >
@@ -97,8 +96,10 @@ export default function PostGrid({
                   <video
                     className="w-full object-cover transition duration-300 ease-in-out group-hover:opacity-70"
                     src={firstMedia.url}
+                    preload="metadata"
+                    controls={false}
+                    autoPlay={false}
                     muted
-                    playsInline
                   />
                 ) : firstMedia?.type === 'image' ? (
                   <Image

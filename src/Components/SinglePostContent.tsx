@@ -78,7 +78,6 @@ export default function SinglePostContent({
               className="max-w-full max-h-full object-contain"
               controls
               autoPlay
-              muted
               playsInline
               key={media[currentIndex].url}
             />
@@ -164,13 +163,16 @@ export default function SinglePostContent({
               />
             ))
           ) : (
-            <p className="text-sm text-zinc-700 dark:text-zinc-300">No comments yet. Start the conversation.</p>
+            <div className="text-center flex items-center justify-between  flex-col mt-12">
+              <h1 className="text-xl text-zinc-700 dark:text-white font-bold">No comments yet.</h1>
+              <p className="text-lg text-zinc-700 dark:text-zinc-300">Start the conversation.</p>
+            </div>
           )}
         </div>
 
         {/* Like & Bookmark */}
         <div className="px-4 py-3 border-t border-zinc-300 dark:border-zinc-700 flex justify-between items-center bg-white  dark:bg-black">
-          <LikesInfo post={post} sessionLike={myLike} showText />
+          <LikesInfo post={post} sessionLike={myLike} showText  mutate={mutate}/>
           <BookmarkButton post={post} sessionBookmark={myBookmark} />
         </div>
 
