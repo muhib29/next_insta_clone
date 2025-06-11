@@ -96,10 +96,11 @@ export default function PostGrid({
                   <video
                     className="w-full object-cover transition duration-300 ease-in-out group-hover:opacity-70"
                     src={firstMedia.url}
-                    preload="metadata"
-                    controls={false}
-                    autoPlay={false}
+                    preload="auto"
                     muted
+                    playsInline
+                    autoPlay
+                    loop
                   />
                 ) : firstMedia?.type === 'image' ? (
                   <Image
