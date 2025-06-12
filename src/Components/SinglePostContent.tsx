@@ -57,19 +57,22 @@ export default function SinglePostContent({
     );
   };
 
-  const swipeHandlers = useSwipeable({
-    onSwipedLeft: handleNext,
-    onSwipedRight: handlePrev,
-    trackMouse: true,
-  });
+const swipeHandlers = useSwipeable({
+  onSwipedLeft: handleNext,
+  onSwipedRight: handlePrev,
+  preventScrollOnSwipe: true,
+  trackMouse: true,
+});
+
+const shouldEnableSwipe = media.length > 1;
+
 
   return (
-    <div className="grid max-w-5xl grid-cols-1 md:grid-cols-2 h-full max-h-[calc(100vh-4rem)] mx-auto bg-white dark:bg-black border border-zinc-300 dark:border-zinc-800 rounded-lg shadow-sm">
+    <div className="grid max-w-5xl grid-cols-1 md:grid-cols-2 h-full max-h-[calc(100vh-4.5rem)] mx-auto bg-white dark:bg-black border border-zinc-300 dark:border-zinc-800 rounded-lg shadow-sm">
       {/* Left: Media */}
       <div
-        className="relative w-full  bg-white dark:bg-black   md:rounded-l-lg flex items-center justify-center"
-        style={{ aspectRatio: "4 / 5", maxHeight: "calc(100vh - 4.5rem)" }}
-        {...swipeHandlers}
+        className="md:aspect-[4/5] touch-action-none max-h-[calc(100vh-4.5rem)] aspect-[6/6] relative w-full  bg-white dark:bg-black   md:rounded-l-lg flex items-center justify-center"
+         {...(shouldEnableSwipe ? swipeHandlers : {})}
       >
         <div className="absolute inset-0 flex items-center justify-center  bg-white dark:bg-black ">
           {media[currentIndex]?.type === "video" ? (
@@ -133,7 +136,7 @@ export default function SinglePostContent({
             <Avatar className="w-10 h-10" fallback="IMG" src={authorProfile?.avatar || ""} />
             <span className="font-semibold text-sm text-black dark:text-white">{authorProfile?.username}</span>
           </Link>
-          <MoreHorizontal className="text-white cursor-pointer" />
+          <MoreHorizontal className="text-blackz dark:text-white cursor-pointer" />
         </div>
 
         {/* Scrollable Comments Area */}
@@ -163,7 +166,7 @@ export default function SinglePostContent({
               />
             ))
           ) : (
-            <div className="text-center flex items-center justify-between  flex-col mt-12">
+            <div className="text-center flex items-center justify-between  flex-col mt-5 md:mt-12">
               <h1 className="text-xl text-zinc-700 dark:text-white font-bold">No comments yet.</h1>
               <p className="text-lg text-zinc-700 dark:text-zinc-300">Start the conversation.</p>
             </div>

@@ -38,17 +38,17 @@ export default async function Suggestion({
       },
     },
     include: {
-      followerProfile: true,  
+      followerProfile: true,
     },
   });
 
   return (
-    <div className="w-full p-4 rounded-2xl bg-white border border-zinc-300 dark:border-zinc-800 dark:bg-black shadow-md transition-colors">
+    <div className="w-full max-w-md mx-auto p-4 rounded-2xl bg-white border border-zinc-300 dark:border-zinc-800 dark:bg-black shadow-md transition-colors px-4">
       <h3 className="text-base font-semibold text-gray-800 dark:text-gray-300 mb-4">
         {suggestedProfiles.length > 0
           ? "Suggestions For You"
           : "No Suggestions Right Now"}
-      </h3> 
+      </h3>
 
       <div className="space-y-4">
         {suggestedProfiles.map((profile) => {
@@ -73,10 +73,11 @@ export default async function Suggestion({
                   </p>
                   <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
                     {firstMutual
-                      ? `Followed by ${firstMutual}${mutuals.length > 1
-                        ? ` and ${mutuals.length - 1} others`
-                        : ""
-                      }`
+                      ? `Followed by ${firstMutual}${
+                          mutuals.length > 1
+                            ? ` and ${mutuals.length - 1} others`
+                            : ""
+                        }`
                       : "Suggested for you"}
                   </p>
                 </div>
@@ -89,7 +90,7 @@ export default async function Suggestion({
 
       {/* Footer */}
       <div className="mt-6 text-[11px] text-zinc-500 dark:text-zinc-400 space-y-2">
-        <div className="flex flex-wrap gap-x-3 gap-y-1">
+        <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-center">
           {[
             "About",
             "Help",
@@ -110,11 +111,10 @@ export default async function Suggestion({
             </p>
           ))}
         </div>
-        <p className="text-[11px] text-zinc-400 mt-2">
+        <p className="text-[11px] text-zinc-400 mt-2 text-center">
           © 2025 Instagram from Meta
         </p>
       </div>
     </div>
-
   );
 }

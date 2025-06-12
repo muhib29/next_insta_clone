@@ -17,7 +17,7 @@ export default function LikesInfo({
   mutate: () => void;
 }) {
   const [likedByMe, setLikedByMe] = useState(!!sessionLike);
-  const [isPending, startTransition] = useTransition();
+  const [isPending] = useTransition();
   const router = useRouter();
 
   const handleLikeToggle = async (formData: FormData) => {

@@ -15,7 +15,7 @@ type ExtendedMedia = {
 };
 
 export default async function MainHomePage() {
-  
+
   const session = await auth();
 
   if (!session?.user?.email) return null;
@@ -96,15 +96,16 @@ export default async function MainHomePage() {
     },
   });
   return (
-    <div className="flex flex-col lg:flex-row gap-8 px-4 lg:px-8 max-w-7xl mx-auto">
+    <div className="w-full max-w-full overflow-hidden">
+    <div className="flex flex-col lg:flex-row gap-4 xs:gap-2 px-4 lg:px-8 max-w-7xl mx-auto">
       {/* Left/Main Feed */}
-      <div className="w-full lg:w-2/3 xl:w-3/5">
+      <div className="w-full lg:w-2/3 xl:w-3/5 xs:w-full">
         {hasFollowers ? (
           <>
             <StoryBar profiles={profiles} />
 
             {/* Mobile-only suggestions carousel */}
-            <div className="md:hidden mt-6 flex justify-center">
+            <div className="md:hidden mt-4 xs:mt-2 flex justify-center">
               <SuggestedProfilesCarousel currentUserId={currentUser.id} />
             </div>
 
@@ -120,7 +121,7 @@ export default async function MainHomePage() {
                 likes={likes}
                 bookmarks={bookmarks}
                 sessionEmail={session.user.email}
-              />
+              />  
             )}
           </>
         ) : (
@@ -128,7 +129,7 @@ export default async function MainHomePage() {
             <div className="md:hidden mt-6 flex justify-center">
               <SuggestedProfilesCarousel currentUserId={currentUser.id} />
             </div>
-            <div className="mt-8 flex justify-center flex-col text-center text-gray-500">
+            <div className="text-gray-500 text-sm xs:text-xs text-center px-2 break-words">
               <p>You&rsquo;re not following anyone yet.</p>
 
               <p>Here are some people you might want to follow:</p>
@@ -138,9 +139,10 @@ export default async function MainHomePage() {
       </div>
 
       {/* Right Sidebar */}
-      <div className="hidden md:block w-[455px] lg:w-1/3 xl:w-2/5">
+      <div className="hidden md:block w-full lg:w-1/3 xl:w-2/5">
         <Suggestion follows={follows} />
       </div>
+    </div>
     </div>
   );
 }

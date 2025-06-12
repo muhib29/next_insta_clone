@@ -29,14 +29,14 @@ export default function CommentForm({
       className="w-full"
     >
       <input type="hidden" name="postId" value={postId} />
-      <div className="flex flex-col sm:flex-row gap-2">
+      <div className="flex flex-col sm:flex-row gap-2 ">
         {/* Avatar */}
         <div className="shrink-0">
           <Avatar fallback="..." src={avatar} />
         </div>
 
         {/* Textarea and Button */}
-        <div className="w-full flex flex-col gap-2">
+        <div className="w-full flex flex-col gap-2 ]">
           <textarea
             ref={areaRef}
             name="text"

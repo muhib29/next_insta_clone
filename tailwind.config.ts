@@ -8,7 +8,11 @@ const config: Config = {
     // other paths...
   ],
   theme: {
-    extend: {},
+    extend: {
+      screens: {
+        'xs': '380px',
+      }
+    },
   },
 plugins: [require('tailwind-scrollbar')],
 };
