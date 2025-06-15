@@ -8,7 +8,7 @@ import { Toaster } from "react-hot-toast";
 import AppShell from "@/Components/AppShell";
 import { auth, signIn } from "@/auth";
 import Image from "next/image";
-import { SessionProvider } from "next-auth/react"; // <-- import SessionProvider
+import { SessionProvider } from "next-auth/react";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -74,7 +74,7 @@ function LoginScreen() {
                 width={150}
                 height={150}
                 className="dark:invert"
-              />
+              />  
             </div>
 
             <form
