@@ -1,21 +1,24 @@
 "use client";
 
-import {
-  useForm,
-  SubmitHandler,
-  Controller,
-} from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useRef, useState } from "react";
 import { Button, Switch, TextArea, TextField } from "@radix-ui/themes";
-import { CloudUploadIcon, LogOutIcon, CheckCircle, XCircle } from "lucide-react";
+import { CloudUploadIcon, LogOutIcon } from "lucide-react";
 import { updateProfile } from "@/action";
 import { useRouter } from "next/navigation";
 import { Profile } from "@prisma/client";
 import Image from "next/image";
-import { toast, ToastContainer, Zoom } from "react-toastify";
+import { ToastContainer, toast, Zoom } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
+interface ProfileFormValues {
+  username: string;
+  name?: string;
+  subtitle?: string;
+  bio?: string;
+}
 
 const schema = z.object({
   username: z
@@ -23,12 +26,19 @@ const schema = z.object({
     .min(3, "Username must be at least 3 characters")
     .max(20, "Username must be at most 20 characters")
     .regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores"),
-  name: z.string().max(50, "Name must be at most 50 characters").optional(),
-  subtitle: z.string().max(60, "Subtitle must be at most 60 characters").optional(),
-  bio: z.string().max(300, "Bio must be at most 300 characters").optional(),
+  name: z
+    .string()
+    .max(50, "Name must be at most 50 characters")
+    .optional(),
+  subtitle: z
+    .string()
+    .max(60, "Subtitle must be at most 60 characters")
+    .optional(),
+  bio: z
+    .string()
+    .max(160, "Bio must be at most 160 characters")
+    .optional(),
 });
-
-type ProfileFormValues = z.infer<typeof schema>;
 
 export default function SettingsForm({ profile }: { profile: Profile | null }) {
   const router = useRouter();
@@ -38,16 +48,18 @@ export default function SettingsForm({ profile }: { profile: Profile | null }) {
   const [isUploading, setIsUploading] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [usernameAvailable, setUsernameAvailable] = useState(true);
+  const [usernameTouched, setUsernameTouched] = useState(false);
 
   const {
     register,
     handleSubmit,
-    control,
     watch,
-    formState: { errors, isSubmitting },
     setError,
-  } = useForm<ProfileFormValues>({
+    clearErrors,
+    formState: { errors, isSubmitting, isValid },
+  } = useForm({
     resolver: zodResolver(schema),
+    mode: "onChange",
     defaultValues: {
       username: profile?.username || "",
       name: profile?.name || "",
@@ -57,27 +69,15 @@ export default function SettingsForm({ profile }: { profile: Profile | null }) {
   });
 
   const username = watch("username");
+  const name = watch("name") || "";
+  const subtitle = watch("subtitle") || "";
+  const bio = watch("bio") || "";
 
   useEffect(() => {
     const theme = localStorage.getItem("theme") || "light";
     setIsDarkMode(theme === "dark");
     document.documentElement.dataset.theme = theme;
   }, []);
-
-  useEffect(() => {
-    if (!username) return;
-    const delayDebounce = setTimeout(async () => {
-      const res = await fetch(`/api/check-username?username=${username}`);
-      const data = await res.json();
-      if (!data.available) {
-        setUsernameAvailable(false);
-        setError("username", { message: "Username already taken" });
-      } else {
-        setUsernameAvailable(true);
-      }
-    }, 600);
-    return () => clearTimeout(delayDebounce);
-  }, [username, setError]);
 
   useEffect(() => {
     if (file) {
@@ -90,13 +90,11 @@ export default function SettingsForm({ profile }: { profile: Profile | null }) {
             method: "POST",
             body: data,
           });
-
           if (!res.ok) throw new Error("Failed to upload image");
-
           const { url } = await res.json();
           setAvatarUrl(url);
         } catch (err) {
-          toast.error("Upload failed");
+          toast.error("Avatar upload failed" + err);
         } finally {
           setIsUploading(false);
         }
@@ -105,6 +103,21 @@ export default function SettingsForm({ profile }: { profile: Profile | null }) {
     }
   }, [file]);
 
+  useEffect(() => {
+    const delayDebounce = setTimeout(async () => {
+      if (!username) return;
+      const res = await fetch(`/api/check-username?username=${username}`);
+      const { available } = await res.json();
+      setUsernameAvailable(available);
+      if (!available) {
+        setError("username", { type: "manual", message: "Username is already taken" });
+      } else {
+        clearErrors("username");
+      }
+    }, 500);
+    return () => clearTimeout(delayDebounce);
+  }, [username, setError, clearErrors]);
+
   const handleThemeToggle = (checked: boolean) => {
     const theme = checked ? "dark" : "light";
     setIsDarkMode(checked);
@@ -112,12 +125,7 @@ export default function SettingsForm({ profile }: { profile: Profile | null }) {
     localStorage.setItem("theme", theme);
   };
 
-  const handleLogout = async () => {
-    const { signOut } = await import("next-auth/react");
-    signOut({ redirect: true, callbackUrl: "/" });
-  };
-
-  const onSubmit: SubmitHandler<ProfileFormValues> = async (data) => {
+  const onSubmit = async (data: ProfileFormValues) => {
     if (!usernameAvailable) return;
     try {
       const formData = new FormData();
@@ -128,31 +136,39 @@ export default function SettingsForm({ profile }: { profile: Profile | null }) {
         }
       }
       formData.set("avatar", avatarUrl || "");
-
-      await toast.promise(updateProfile(formData), {
-        pending: "Saving profile...",
-        success: "🎉 Profile updated successfully!",
-        error: "Something went wrong",
-      }, {
+      await updateProfile(formData);
+      toast.success("🎉 Profile updated successfully!", {
         transition: Zoom,
         position: "top-center",
       });
-
       router.push("/profile");
       router.refresh();
     } catch (error) {
-      console.error("Update failed:", error);
+      toast.error("Something went wrong", {
+        transition: Zoom,
+      });
+      console.log(error);
     }
   };
 
+  const handleLogout = async () => {
+    const { signOut } = await import("next-auth/react");
+    signOut({ redirect: true, callbackUrl: "/" });
+  };
+
+  useEffect(() => {
+  setUsernameTouched(false);
+}, [profile?.username]);
+
+
   return (
     <div className="max-w-md mx-auto">
+      <ToastContainer autoClose={3000} limit={1} hideProgressBar newestOnTop closeOnClick pauseOnHover theme="colored" />
       <form onSubmit={handleSubmit(onSubmit)}>
-        <ToastContainer />
         <input type="hidden" name="avatar" value={avatarUrl || ""} />
 
         <div className="flex gap-4 items-center mb-6">
-          <div className="size-24 rounded-full overflow-hidden aspect-square shadow-md shadow-gray-400 bg-gray-200 relative">
+          <div className="size-24 rounded-full overflow-hidden aspect-square shadow-md bg-gray-200 relative">
             <Image
               src={avatarUrl || "/userIcon.png"}
               alt="Avatar"
@@ -174,7 +190,7 @@ export default function SettingsForm({ profile }: { profile: Profile | null }) {
               type="button"
               variant="surface"
               disabled={isUploading}
-              onClick={() => !isUploading && fileInRef.current?.click()}
+              onClick={() => fileInRef.current?.click()}
             >
               <CloudUploadIcon className="mr-2" />
               {isUploading ? "Uploading..." : "Change Avatar"}
@@ -189,53 +205,34 @@ export default function SettingsForm({ profile }: { profile: Profile | null }) {
               {...register("username")}
               placeholder="your_username"
               required
-              aria-invalid={!!errors.username}
+              onFocus={() => setUsernameTouched(true)}
+              className={errors.username ? "border border-red-500" : ""}
             />
-            {errors.username && (
-              <p className="text-red-500 text-sm">{errors.username.message}</p>
-            )}
-            {username && !errors.username && (
-              <p className={`text-sm flex items-center gap-1 ${usernameAvailable ? "text-green-600" : "text-red-500"}`}>
-                {usernameAvailable ? <CheckCircle size={16} /> : <XCircle size={16} />}
-                {usernameAvailable ? "Username is available" : "Username is taken"}
-              </p>
+            {errors.username && <p className="text-red-500 text-sm">{errors.username.message}</p>}
+            {usernameTouched && !errors.username && usernameAvailable && username.length >= 3 && (
+              <p className="text-green-600 text-sm">Username is available</p>
             )}
           </div>
 
           <div>
             <p className="font-bold">Name</p>
-            <TextField.Root
-              {...register("name")}
-              placeholder="John Doe"
-              aria-invalid={!!errors.name}
-            />
-            {errors.name && (
-              <p className="text-red-500 text-sm">{errors.name.message}</p>
-            )}
+            <TextField.Root {...register("name")} placeholder="John Doe" className={errors.name ? "border border-red-500" : ""} style={{ textTransform: "capitalize" }} />
+            <p className="text-xs text-gray-600">{name.length}/50</p>
+            {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
           </div>
 
           <div>
             <p className="font-bold">Subtitle</p>
-            <TextField.Root
-              {...register("subtitle")}
-              placeholder="Graphic designer"
-              aria-invalid={!!errors.subtitle}
-            />
-            {errors.subtitle && (
-              <p className="text-red-500 text-sm">{errors.subtitle.message}</p>
-            )}
+            <TextField.Root {...register("subtitle")} placeholder="Graphic designer" className={errors.subtitle ? "border border-red-500" : ""} style={{ textTransform: "capitalize" }} />
+            <p className="text-xs text-gray-600">{subtitle.length}/60</p>
+            {errors.subtitle && <p className="text-red-500 text-sm">{errors.subtitle.message}</p>}
           </div>
 
           <div>
             <p className="font-bold">Bio</p>
-            <TextArea
-              {...register("bio")}
-              placeholder="Tell us a bit about yourself..."
-              aria-invalid={!!errors.bio}
-            />
-            {errors.bio && (
-              <p className="text-red-500 text-sm">{errors.bio.message}</p>
-            )}
+            <TextArea {...register("bio")} placeholder="A bit about yourself..." className={errors.bio ? "border border-red-500" : ""} />
+            <p className="text-xs text-gray-600">{bio.length}/160</p>
+            {errors.bio && <p className="text-red-500 text-sm">{errors.bio.message}</p>}
           </div>
 
           <label className="flex items-center gap-2 mt-4 font-medium">
@@ -244,8 +241,8 @@ export default function SettingsForm({ profile }: { profile: Profile | null }) {
           </label>
 
           <div className="flex justify-center mt-6 gap-4">
-            <Button type="submit" variant="solid" disabled={isSubmitting || isUploading}>
-              {isSubmitting ? "Saving..." : "Save Settings"}
+            <Button type="submit" variant="solid" disabled={isUploading || isSubmitting || !isValid || !usernameAvailable}>
+              Save Settings
             </Button>
             <Button
               type="button"

@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { uniq } from "lodash";
 import { prisma } from "@/db";
 import { revalidatePath } from "next/cache";
+import { pusherServer } from "../lib/pusher/server";
 
 export async function getSessionEmail(): Promise<string | null | undefined> {
   const session = await auth();
@@ -51,11 +52,7 @@ export async function postEntry(data: FormData) {
   }
 
   const mediaArray: { url: string; type: 'image' | 'video' }[] = JSON.parse(mediaData);
-
-  // ✅ Extract first image and first video if available
-  // const firstImage = mediaArray.find((m) => m.type === 'image')?.url ?? null;
-  // const firstVideo = mediaArray.find((m) => m.type === 'video')?.url ?? null;
-
+  
   const postDoc = await prisma.post.create({
     data: {
       author: sessionEmail,
@@ -71,18 +68,65 @@ export async function postEntry(data: FormData) {
 
   return postDoc.id;
 }
-
-
 export async function postComment(data: FormData) {
-  const authorEmail = await getSessionEmailOrThrow(); // Get email of the logged-in user
+  const postId = data.get("postId")?.toString();
+  const text = data.get("text")?.toString();
 
-  return prisma.comment.create({
-    data: {
-      author: authorEmail, // Store email instead of ObjectId
-      postId: data.get('postId') as string,
-      text: data.get('text') as string,
-    },
+  if (!postId || !text) throw new Error("Missing postId or text");
+
+  const authorEmail = await getSessionEmailOrThrow();
+
+  const [sender, post] = await Promise.all([
+    prisma.profile.findUnique({
+      where: { email: authorEmail },
+      select: { id: true, username: true, avatar: true },
+    }),
+    prisma.post.findUnique({
+      where: { id: postId },
+      select: { id: true, author: true },
+    }),
+  ]);
+
+  if (!sender || !post) throw new Error("Invalid post or sender");
+
+  const comment = await prisma.comment.create({
+    data: { author: authorEmail, postId, text },
   });
+
+  if (post.author !== authorEmail) {
+    const receiver = await prisma.profile.findUnique({
+      where: { email: post.author },
+      select: { id: true },
+    });
+
+    if (receiver) {
+      const notification = await prisma.notification.create({
+        data: {
+          type: "comment",
+          senderId: sender.id,
+          receiverId: receiver.id,
+          postId: post.id,
+          message: `${sender.username} commented on your post.`,
+          isRead: false, // ✅ ensure unread status
+        },
+      });
+
+      // Push real-time notification
+      await pusherServer.trigger(`user-${receiver.id}`, "new-notification", {
+        id: notification.id,
+        message: notification.message,
+        type: "comment",
+        postId: post.id,
+        senderId: sender.id,
+        senderUsername: sender.username,
+        senderAvatar: sender.avatar,
+        createdAt: notification.createdAt.toISOString(),
+        ourFollow: null, // Let client re-check if needed
+      });
+    }
+  }
+
+  return comment;
 }
 
 export async function deleteComment(commentId: string) {
@@ -124,8 +168,6 @@ export const updateComment = async (commentId: string, newText: string) => {
     throw new Error("Failed to update comment.");
   }
 };
-
-
 export async function updatePostLikesCount(postId: string) {
   await prisma.post.update({
     where: { id: postId },
@@ -136,16 +178,75 @@ export async function updatePostLikesCount(postId: string) {
     },
   });
 }
+// export async function likePost(data: FormData) {
+//   const postId = data.get('postId') as string;
+//   await prisma.like.create({
+//     data: {
+//       author: await getSessionEmailOrThrow(),
+//       postId,
+//     }
+//   })
+//   await updatePostLikesCount(postId)
+// }
+
 export async function likePost(data: FormData) {
-  const postId = data.get('postId') as string;
+  const postId = data.get("postId")?.toString();
+  if (!postId) throw new Error("Missing postId");
+
+  const senderEmail = await getSessionEmailOrThrow();
+
+  const [senderProfile, post] = await Promise.all([
+    prisma.profile.findUnique({ where: { email: senderEmail } }),
+    prisma.post.findUnique({ where: { id: postId } }),
+  ]);
+
+  if (!post || !senderProfile) throw new Error("Invalid post or profile");
+
+  // Create the like
   await prisma.like.create({
     data: {
-      author: await getSessionEmailOrThrow(),
+      author: senderEmail,
       postId,
+    },
+  });
+
+  // Don’t notify yourself
+  if (post.author !== senderEmail) {
+    const receiver = await prisma.profile.findUnique({
+      where: { email: post.author },
+    });
+
+    if (receiver) {
+      const notification = await prisma.notification.create({
+        data: {
+          type: "like",
+          senderId: senderProfile.id,
+          receiverId: receiver.id,
+          postId: post.id,
+          message: `${senderProfile.username} liked your post.`,
+        },
+      });
+
+      // 🔔 Send real-time notification via Pusher
+      await pusherServer.trigger(`user-${receiver.id}`, "new-notification", {
+        type: "like",
+        message: notification.message,
+        sender: {
+          id: senderProfile.id,
+          username: senderProfile.username,
+          avatar: senderProfile.avatar,
+        },
+        postId: post.id,
+        notificationId: notification.id,
+        createdAt: notification.createdAt,
+      });
     }
-  })
-  await updatePostLikesCount(postId)
+  }
+
+  await updatePostLikesCount(postId);
 }
+
+
 
 export async function removeLikeFromPost(data: FormData) {
   const postId = data.get('postId') as string;
@@ -158,18 +259,64 @@ export async function removeLikeFromPost(data: FormData) {
   await updatePostLikesCount(postId)
 }
 
+
 export async function followProfile(profileIdToFollow: string) {
-  const sessionProfile = await prisma.profile.findFirstOrThrow({
-    where: { email: await getSessionEmailOrThrow() },
+  const senderEmail = await getSessionEmailOrThrow();
+
+  const sender = await prisma.profile.findFirstOrThrow({
+    where: { email: senderEmail },
   });
+
+  if (sender.id === profileIdToFollow) return; // cannot follow self
+
+  // Prevent duplicate follows
+  const alreadyFollowing = await prisma.follower.findFirst({
+    where: {
+      followingProfileId: sender.id,
+      followedProfileId: profileIdToFollow,
+    },
+  });
+
+  if (alreadyFollowing) return;
+
   await prisma.follower.create({
     data: {
-      followingProfileEmail: sessionProfile.email,
-      followingProfileId: sessionProfile.id,
+      followingProfileEmail: sender.email,
+      followingProfileId: sender.id,
       followedProfileId: profileIdToFollow,
-    }
-  })
+    },
+  });
+
+  const receiver = await prisma.profile.findUnique({
+    where: { id: profileIdToFollow },
+  });
+
+  if (receiver) {
+    const notification = await prisma.notification.create({
+      data: {
+        type: "follow",
+        senderId: sender.id,
+        receiverId: receiver.id,
+        message: `${sender.username} started following you.`,
+      },
+    });
+
+    await pusherServer.trigger(`user-${receiver.id}`, "new-notification", {
+      type: "follow",
+      message: notification.message,
+      sender: {
+        id: sender.id,
+        username: sender.username,
+        avatar: sender.avatar,
+      },
+      notificationId: notification.id,
+      createdAt: notification.createdAt,
+    });
+  }
 }
+
+
+
 export async function unfollowProfile(profileIdToUnfollow: string) {
   const sessionProfile = await prisma.profile.findFirstOrThrow({
     where: { email: await getSessionEmailOrThrow() },
@@ -307,3 +454,4 @@ export async function deletePost(postId: string) {
     where: { id: postId },
   });
 }
+

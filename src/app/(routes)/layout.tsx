@@ -9,6 +9,7 @@ import AppShell from "@/Components/AppShell";
 import { auth, signIn } from "@/auth";
 import Image from "next/image";
 import { SessionProvider } from "next-auth/react";
+import { prisma } from "@/db";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -16,23 +17,33 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 export default async function RootLayout({
   children,
   modal,
-}: Readonly<{
+}: {
   children: React.ReactNode;
   modal: React.ReactNode;
-}>) {
+}) {
   const session = await auth();
+
+  let sessionUserId: string | null = null;
+
+  if (session?.user?.email) {
+    const profile = await prisma.profile.findUnique({
+      where: { email: session.user.email },
+      select: { id: true },
+    });
+    sessionUserId = profile?.id || null;
+  }
 
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white dark:bg-black dark:text-white`}
       >
-        <SessionProvider session={session}> {/* Wrap here */}
+        <SessionProvider session={session}>
           <Theme>
-            {session ? (
+            {sessionUserId ? (
               <>
                 {modal}
-                <AppShell>
+                <AppShell sessionUserId={sessionUserId}>
                   {children}
                   <Toaster position="top-right" reverseOrder={false} />
                 </AppShell>
@@ -47,7 +58,6 @@ export default async function RootLayout({
     </html>
   );
 }
-
 function LoginScreen() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-black">

@@ -5,27 +5,35 @@ import DesktopNav from "@/Components/DesktopNav";
 import MobileNav from "@/Components/MobileNav";
 import dynamic from "next/dynamic";
 
-// Dynamically import SearchPageClient only on client-side
 const SearchPageClient = dynamic(() => import("@/Components/SearchPageClient"), {
   ssr: false,
 });
 
-export default function AppShell({ children }: { children: React.ReactNode }) {
+export default function AppShell({
+  children,
+  sessionUserId,
+}: {
+  children: React.ReactNode;
+  sessionUserId: string;
+}) {
   const [searchOpen, setSearchOpen] = useState(false);
 
   return (
     <div className="relative flex min-h-screen bg-white text-black dark:bg-black dark:text-white">
       {/* Fixed Sidebar */}
-      <DesktopNav onSearchToggle={setSearchOpen} />
+      <DesktopNav
+        onSearchToggle={setSearchOpen}
+        sessionUserId={sessionUserId}
+      />
 
-      {/* Search Sidebar (opens on search icon click) */}
+      {/* Search Sidebar */}
       {searchOpen && (
         <div className="fixed top-0 left-[80px] z-5 h-screen w-[400px] border-r border-gray-200 bg-white overflow-y-auto dark:border-gray-800 dark:bg-black">
           <SearchPageClient onCancel={() => setSearchOpen(false)} />
         </div>
       )}
 
-      {/* Main Content Area */}
+      {/* Main Content */}
       <div
         className="flex flex-col w-full md:[--sidebar-width:14rem]"
         style={{ marginLeft: "var(--sidebar-width, 0)" }}
@@ -34,7 +42,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <div className="w-full">{children}</div>
         </div>
 
-        {/* Mobile Nav Bar */}
+        {/* Mobile Nav */}
         <MobileNav />
       </div>
     </div>

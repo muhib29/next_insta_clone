@@ -4,7 +4,7 @@ import Avatar from "./Avatar";
 
 export default function StoryBar({ profiles }: { profiles: Profile[] }) {
   return (
-    <div className="w-full flex justify-center">
+    <div className="w-full flex justify-center md:mt-0 mt-[20px]">
       <div className="w-full max-w-[500px] flex space-x-4 overflow-x-auto scrollbar-hide border-b border-gray-300 dark:border-gray-700 pb-4 px-2">
         {profiles.map((profile) => (
           <Link
