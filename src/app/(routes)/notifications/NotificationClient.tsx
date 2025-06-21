@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Pusher from "pusher-js";
 import Image from "next/image";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import FollowButton from "@/Components/FollowButton";
 import { Follower } from "@prisma/client";
+import { pusherClient } from "../../../../lib/pusher/client";
 
 
 type Notification = {
@@ -31,12 +31,29 @@ export default function NotificationClient({
 
     const [notifications, setNotifications] = useState<Notification[]>(initial);
 
-    useEffect(() => {
-        const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
-            cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
-        });
 
-        const channel = pusher.subscribe(`user-${userId}`);
+
+
+    //     useEffect(() => {
+    //     const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
+    //         cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
+    //     });
+
+    //     const channel = pusher.subscribe(`user-${userId}`);
+
+    //     channel.bind("new-notification", (data: Notification) => {
+    //         setNotifications((prev) => [data, ...prev]);
+    //     });
+
+    //     return () => {
+    //         channel.unbind_all();
+    //         channel.unsubscribe();
+    //         pusher.disconnect();
+    //     };
+    // }, [userId]);
+
+    useEffect(() => {
+        const channel = pusherClient.subscribe(`user-${userId}`);
 
         channel.bind("new-notification", (data: Notification) => {
             setNotifications((prev) => [data, ...prev]);
@@ -45,7 +62,6 @@ export default function NotificationClient({
         return () => {
             channel.unbind_all();
             channel.unsubscribe();
-            pusher.disconnect();
         };
     }, [userId]);
 

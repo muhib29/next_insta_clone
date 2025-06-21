@@ -11,13 +11,16 @@ import {
   HeartIcon,
   UserIcon,
   CameraIcon,
+  MessageCircle,
 } from 'lucide-react';
 import NotificationBell from './NotificationBell';
+import MessageBell from './MessageBell';
 
 const navLinks = [
   { label: 'Home', icon: HomeIcon, href: '/' },
   { label: 'Search', icon: SearchIcon, isSpecial: 'search' },
   { label: 'Explore', icon: CompassIcon, href: '/explore' },
+  { label: 'Messages', icon: MessageCircle, href: '/direct/inbox' },
   { label: 'Notifications', icon: HeartIcon, href: '/notifications' },
   { label: 'Profile', icon: UserIcon, href: '/profile' },
   { label: 'Create', icon: CameraIcon, href: '/create' },
@@ -26,13 +29,15 @@ const navLinks = [
 export default function DesktopNav({
   onSearchToggle,
   sessionUserId,
+  forceCollapsed = false,
 }: {
   onSearchToggle: (open: boolean) => void;
   sessionUserId: string;
+  forceCollapsed?: boolean;
 }) {
   const pathname = usePathname();
   const [clickedIndex, setClickedIndex] = useState<number | null>(null);
-  const isSearchOpen = clickedIndex === 1;
+  const isSearchOpen = forceCollapsed || clickedIndex === 1;
   const sidebarWidth = isSearchOpen ? '5rem' : '14rem';
   const router = useRouter();
   return (
@@ -50,20 +55,24 @@ export default function DesktopNav({
           }`}
       >
         {isSearchOpen ? (
+
           <Image
-            className="dark:invert w-8"
-            src="https://img.icons8.com/?size=512&id=44907&format=png"
+            className="w-8 h-auto  dark:invert"
+            src="/Instagram_logo_mobile.png"
             alt="Logo"
             width={32}
             height={32}
+            priority
           />
         ) : (
+
           <Image
-            className="w-32 dark:invert"
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Instagram_logo.svg/800px-Instagram_logo.svg.png"
+            className="w-32 h-auto dark:invert"
+            src="/Instagram_logo.svg.png"
             alt="Logo"
             width={128}
             height={128}
+            priority
           />
         )}
       </Link>
@@ -71,7 +80,13 @@ export default function DesktopNav({
       {/* Nav Items */}
       <div className="flex flex-col gap-4">
         {navLinks.map(({ label, icon: Icon, href, isSpecial }, index) => {
-          const isActive = pathname === href;
+          const isActive =
+            pathname === href ||
+            (label === "Messages" && pathname.startsWith("/direct")) ||
+            (label === "Profile" && pathname.startsWith("/profile")) ||
+            (label === "Create" && pathname.startsWith("/create")) ||
+            (label === "Explore" && pathname.startsWith("/explore")) ||
+            (label === "Notifications" && pathname.startsWith("/notifications"));
           const showText = !isSearchOpen;
 
           const commonClass = `
@@ -116,6 +131,20 @@ export default function DesktopNav({
 
             );
           }
+          if (label === "Messages") {
+            return (
+              <div
+                key={label}
+                onClick={() => {
+                  setClickedIndex(index);
+                  onSearchToggle(false);
+                }}
+              >
+                <MessageBell userId={sessionUserId} showText={showText} />
+              </div>
+            );
+          }
+
 
 
           return (

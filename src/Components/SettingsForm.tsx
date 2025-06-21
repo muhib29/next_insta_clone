@@ -106,17 +106,22 @@ export default function SettingsForm({ profile }: { profile: Profile | null }) {
   useEffect(() => {
     const delayDebounce = setTimeout(async () => {
       if (!username) return;
-      const res = await fetch(`/api/check-username?username=${username}`);
+
+      const res = await fetch(`/api/check-username?username=${username}&userId=${profile?.id}`);
       const { available } = await res.json();
+
       setUsernameAvailable(available);
+
       if (!available) {
         setError("username", { type: "manual", message: "Username is already taken" });
       } else {
         clearErrors("username");
       }
     }, 500);
+
     return () => clearTimeout(delayDebounce);
-  }, [username, setError, clearErrors]);
+  }, [username, setError, clearErrors, profile?.id]);
+
 
   const handleThemeToggle = (checked: boolean) => {
     const theme = checked ? "dark" : "light";
@@ -157,12 +162,12 @@ export default function SettingsForm({ profile }: { profile: Profile | null }) {
   };
 
   useEffect(() => {
-  setUsernameTouched(false);
-}, [profile?.username]);
+    setUsernameTouched(false);
+  }, [profile?.username]);
 
 
   return (
-    <div className="max-w-md mx-auto">
+    <div className="max-w-md mx-auto py-4">
       <ToastContainer autoClose={3000} limit={1} hideProgressBar newestOnTop closeOnClick pauseOnHover theme="colored" />
       <form onSubmit={handleSubmit(onSubmit)}>
         <input type="hidden" name="avatar" value={avatarUrl || ""} />

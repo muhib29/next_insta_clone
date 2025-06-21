@@ -102,9 +102,9 @@ export default function NotificationBell({
         <Bell className="w-5 h-5 md:w-6 md:h-6 text-inherit" />
         {unreadCount > 0 && (
           <>
-            <span className="absolute top-[-4px] right-[-4px] w-2.5 h-2.5 bg-red-500 rounded-full animate-ping" />
-            <span className="absolute top-[-4px] right-[-4px] w-2.5 h-2.5 bg-red-500 rounded-full" />
-            <span className="absolute -top-3 -right-4 bg-red-600 text-white text-[10px] px-1.5 py-0.5 rounded-full font-medium">
+            {/* <span className="absolute top-[-4px] right-[-4px] w-2.5 h-2.5 bg-red-500 rounded-full animate-ping" />
+            <span className="absolute top-[-4px] right-[-4px] w-2.5 h-2.5 bg-red-500 rounded-full" /> */}
+            <span className="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] px-2 py-0.5 rounded-full font-medium">
               {unreadCount}
             </span>
           </>

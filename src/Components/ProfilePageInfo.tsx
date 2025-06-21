@@ -32,16 +32,16 @@ export default function ProfilePageInfo({
                 src={profile.avatar}
                 alt="Profile"
                 className="w-full h-full object-cover"
-                width={128} 
-                height={128} 
+                width={128}
+                height={128}
               />
             ) : (
               <Image
                 src="/userImage.png"
                 alt="Default Profile"
                 className="w-full h-full object-cover"
-                width={128} 
-                height={128} 
+                width={128}
+                height={128}
               />
             )}
 
@@ -54,18 +54,30 @@ export default function ProfilePageInfo({
             <h1 className="text-xl font-normal">{profile?.username || ""}</h1>
 
             {!isOurProfile && (
-              <section>
+              <section className="flex gap-2">
                 <FollowButton ourFollow={ourFollow} profileIdToFollow={profile.id} />
+
+                {ourFollow && (
+                  <Link
+                    href={`/direct/${profile.id}`}
+                    className="bg-purple-700 text-white hover:bg-purple-800 px-4 py-1 rounded-md text-sm transition"
+                  >
+                    Message
+                  </Link>
+                )}
               </section>
             )}
+            {isOurProfile && (
+              <Link
+                href="/settings"
+                className="bg-gray-200 dark:bg-[#363636] hover:bg-gray-300 dark:hover:bg-[#4f4e4e] px-4 py-1 rounded-md text-sm transition"
+              >
+                Settings
+              </Link>
+            )}
 
-            <Link
-              href="/settings"
-              className="bg-gray-200 dark:bg-[#363636] hover:bg-gray-300 dark:hover:bg-[#4f4e4e] px-4 py-1 rounded-md text-sm transition"
-            >
-              Settings
-            </Link>
           </div>
+
           <div className="flex gap-6 mt-4 text-sm text-gray-600 dark:text-gray-300">
             <p>
               <span className="font-semibold text-black dark:text-white">{postCount}</span> posts

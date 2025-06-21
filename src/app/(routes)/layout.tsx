@@ -10,6 +10,8 @@ import { auth, signIn } from "@/auth";
 import Image from "next/image";
 import { SessionProvider } from "next-auth/react";
 import { prisma } from "@/db";
+import '@fortawesome/fontawesome-free/css/all.min.css';
+
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -79,11 +81,12 @@ function LoginScreen() {
           <div className="w-full max-w-md bg-white dark:bg-neutral-900 shadow-xl rounded-lg p-10">
             <div className="flex justify-center mb-8">
               <Image
-                src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Instagram_logo.svg/800px-Instagram_logo.svg.png"
+                src="/Instagram_logo.svg.png"
                 alt="Instagram Logo"
                 width={150}
                 height={150}
                 className="dark:invert"
+                priority
               />  
             </div>
 

@@ -13,6 +13,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Message {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  senderId   String
+  receiverId String
+  text       String
+  createdAt  DateTime @default(now())
+  isRead       Boolean  @default(false)
+
+  sender     Profile  @relation("SentMessages", fields: [senderId], references: [id])
+  receiver   Profile  @relation("ReceivedMessages", fields: [receiverId], references: [id])
+}
+
+
+
 model Notification {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   type        String   // 'like' | 'comment' | 'follow'
@@ -38,6 +52,9 @@ model Profile {
   // New relation fields
   followers Follower[] @relation("Followings")
   followings Follower[] @relation("Followers")
+
+  sentMessages     Message[]       @relation("SentMessages")
+  receivedMessages Message[]       @relation("ReceivedMessages")
 
   sentNotifications     Notification[] @relation("SentNotifications")
   receivedNotifications Notification[] @relation("ReceivedNotifications")

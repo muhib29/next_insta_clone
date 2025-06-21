@@ -26,8 +26,8 @@ export default async function Suggestion({
         notIn: excludedIds,
       },
     },
+    take: 5,
   });
-
   const mutualFollows = await prisma.follower.findMany({
     where: {
       followingProfileId: {
@@ -44,11 +44,23 @@ export default async function Suggestion({
 
   return (
     <div className="w-full max-w-md mx-auto p-4 rounded-2xl bg-white border border-zinc-300 dark:border-zinc-800 dark:bg-black shadow-md transition-colors px-4">
-      <h3 className="text-base font-semibold text-gray-800 dark:text-gray-300 mb-4">
-        {suggestedProfiles.length > 0
-          ? "Suggestions For You"
-          : "No Suggestions Right Now"}
-      </h3>
+      <div className="flex justify-between items-center">
+        <h3 className="text-base font-semibold text-gray-800 dark:text-gray-300 mb-4">
+          {suggestedProfiles.length > 0
+            ? "Suggestions For You"
+            : "No Suggestions Right Now"}
+        </h3>
+        {suggestedProfiles.length >= 5 && (
+          <div className="mb-4">
+            <Link
+              href="/suggestions"
+              className="text-sm font-semibold text-gray-800 dark:text-gray-300 hover:text-gray-500"
+            >
+              See All
+            </Link>
+          </div>
+        )}
+      </div>
 
       <div className="space-y-4">
         {suggestedProfiles.map((profile) => {
@@ -73,11 +85,10 @@ export default async function Suggestion({
                   </p>
                   <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
                     {firstMutual
-                      ? `Followed by ${firstMutual}${
-                          mutuals.length > 1
-                            ? ` and ${mutuals.length - 1} others`
-                            : ""
-                        }`
+                      ? `Followed by ${firstMutual}${mutuals.length > 1
+                        ? ` and ${mutuals.length - 1} others`
+                        : ""
+                      }`
                       : "Suggested for you"}
                   </p>
                 </div>
@@ -86,6 +97,8 @@ export default async function Suggestion({
             </div>
           );
         })}
+
+
       </div>
 
       {/* Footer */}

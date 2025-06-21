@@ -86,7 +86,7 @@ export default function CreatePage() {
 
   return (
     <form
-      className="max-w-md mx-auto"
+      className="max-w-md mx-auto  py-4"
       onSubmit={async (e) => {
         e.preventDefault();
         const form = e.currentTarget;

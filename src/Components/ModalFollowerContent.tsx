@@ -5,8 +5,8 @@ import RemoveFollowerButton from "./RemoveFollowerButton"; // Assuming you alrea
 import ModalXicon from "./ModalXicon";
 import FollowButton from "./FollowButton";
 export default async function ModelFollowerContent({ username }: { username: string }) {
- const session = await auth();
- const currentUserEmail = session?.user?.email;
+  const session = await auth();
+  const currentUserEmail = session?.user?.email;
 
   if (!session?.user?.email) return <div>Unauthorized</div>;
 
@@ -26,19 +26,24 @@ export default async function ModelFollowerContent({ username }: { username: str
 
 
   // Get the followers of the viewed profile
-  const followersList = await prisma.follower.findMany({
+  const rawFollowers = await prisma.follower.findMany({
     where: { followedProfileId: profile.id },
-    include: {
-      followerProfile: {
-        select: {
-          id: true,
-          name: true,
-          username: true,
-          avatar: true,
-        },
-      },
+  });
+
+  const followerIds = rawFollowers.map(f => f.followingProfileId);
+
+  const followerProfiles = await prisma.profile.findMany({
+    where: {
+      id: { in: followerIds },
+    },
+    select: {
+      id: true,
+      name: true,
+      username: true,
+      avatar: true,
     },
   });
+
 
   return (
     <div className="flex flex-col h-full">
@@ -48,47 +53,36 @@ export default async function ModelFollowerContent({ username }: { username: str
       </div>
 
       <div className="overflow-y-auto">
-        {followersList.length === 0 ? (
+        {followerProfiles.length === 0 ? (
           <div className="p-4 text-sm text-center text-gray-500 dark:text-neutral-400">
             No followers yet.
           </div>
         ) : (
-          followersList.map((follower) => {
-            // const followedUserId = follower.followerProfile.id;
-            return (
-              <div
-                key={follower.id}
-                className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800"
-              >
-                <div className="flex items-center gap-3">
-                  {follower.followerProfile.avatar && (
-                    <Avatar src={follower.followerProfile.avatar} />
-                  )}
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium">
-                      {follower.followerProfile.username}
-                    </span>
-                    {follower.followerProfile.name && (
-                      <span className="text-xs text-white">
-                        {follower.followerProfile.name}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                 {isOwnProfile ? (
-                    <RemoveFollowerButton followerId={follower.id} />
-                  ) : (
-                    <FollowButton
-                      profileIdToFollow={follower.followerProfile.id}
-                      ourFollow={null} // optional – can remain null for now
-                    />
+          followerProfiles.map((follower) => (
+            <div
+              key={follower.id}
+              className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800"
+            >
+              <div className="flex items-center gap-3">
+                {follower.avatar && <Avatar src={follower.avatar} />}
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium">{follower.username}</span>
+                  {follower.name && (
+                    <span className="text-xs text-white">{follower.name}</span>
                   )}
                 </div>
               </div>
-            );
-          })
+              <div className="flex items-center gap-3">
+                {isOwnProfile ? (
+                  <RemoveFollowerButton followerId={follower.id} />
+                ) : (
+                  <FollowButton profileIdToFollow={follower.id} ourFollow={null} />
+                )}
+              </div>
+            </div>
+          ))
         )}
+
       </div>
     </div>
   );

@@ -113,12 +113,17 @@ export default function PostCard({
                                         controls={showControls}
                                     />
                                 ) : (
-                                    <Image
-                                        src={currentMedia.url}
-                                        alt={`Media ${currentIndex + 1} of ${mediaCount}`}
-                                        fill
-                                        className="object-contain rounded-md"
-                                    />
+   <Image
+  src={currentMedia.url}
+  alt={`Media ${currentIndex + 1} of ${mediaCount}`}
+  fill
+  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 800px"
+  placeholder="blur"
+  blurDataURL="/placeholder.jpg" // or a tiny blurred version of your image
+  className="object-contain rounded-md"
+/>
+
+
                                 )}
 
                                 {mediaCount > 1 && (

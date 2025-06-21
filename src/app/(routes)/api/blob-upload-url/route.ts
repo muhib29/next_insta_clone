@@ -11,8 +11,8 @@ export async function POST(request: Request): Promise<NextResponse> {
       request,
 onBeforeGenerateToken: async () => {
   return {
-    addRandomSuffix: true, // ✅ put this here, NOT inside tokenPayload
-    tokenPayload: JSON.stringify({}), // Optional — only if you want to pass metadata
+    addRandomSuffix: true, 
+    tokenPayload: JSON.stringify({}), 
   };
 },
       onUploadCompleted: async ({ blob }) => {
@@ -20,7 +20,7 @@ onBeforeGenerateToken: async () => {
 
         try {
         } catch (error) {
-          console.error("❌ Error in onUploadCompleted:", error);
+          console.error("Error in onUploadCompleted:", error);
         }
       },
     });
@@ -29,7 +29,7 @@ onBeforeGenerateToken: async () => {
 
   } catch (error) {
     const message = (error as Error).message;
-    console.error("❌ Error in blob upload API:", message);
+    console.error("Error in blob upload API:", message);
     return NextResponse.json(
       { error: message },
       { status: 400 },
