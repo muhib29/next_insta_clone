@@ -8,7 +8,7 @@ export default async function ModelFollowingContent({ username }: { username: st
   const profile = await prisma.profile.findUnique({
     where: { username }
   });
-  
+
   if (!profile) return <div>Profile not found</div>;
 
   const followingList = await prisma.follower.findMany({
@@ -26,31 +26,32 @@ export default async function ModelFollowingContent({ username }: { username: st
       },
     },
   });
-
   const followingWithMutualStatus = await Promise.all(
-    followingList.map(async (entry) => {
-      const user = entry.followedProfile;
+    followingList
+      .filter((entry) => entry.followedProfile !== null) // guard against null
+      .map(async (entry) => {
+        const user = entry.followedProfile!; // now safe to assert non-null
 
-      const ourFollow = await prisma.follower.findFirst({
-        where: {
-          followingProfileId: profile.id,
-          followedProfileId: user.id,
-        },
-      });
+        const ourFollow = await prisma.follower.findFirst({
+          where: {
+            followingProfileId: profile.id,
+            followedProfileId: user.id,
+          },
+        });
 
-      const mutualFollowBack = await prisma.follower.findFirst({
-        where: {
-          followingProfileId: user.id,
-          followedProfileId: profile.id,
-        },
-      });
+        const mutualFollowBack = await prisma.follower.findFirst({
+          where: {
+            followingProfileId: user.id,
+            followedProfileId: profile.id,
+          },
+        });
 
-      return {
-        user,
-        ourFollow,
-        mutualFollowBack,
-      };
-    })
+        return {
+          user,
+          ourFollow,
+          mutualFollowBack,
+        };
+      })
   );
 
   return (

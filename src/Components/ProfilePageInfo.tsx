@@ -82,7 +82,10 @@ export default function ProfilePageInfo({
             <p>
               <span className="font-semibold text-black dark:text-white">{postCount}</span> posts
             </p>
-            <Link href={`/users/${profile.username}/follower`}>
+            <Link 
+             href={`/users/${profile.username}/follower`}
+            //  href={`${isOurProfile ? '/profile/follower' : `/users/${profile.username}/follower`}`}
+             >
               <span className="font-semibold text-black dark:text-white cursor-pointer ">{followersCount}</span> followers
             </Link>
             <Link href={`/users/${profile.username}/following`}>

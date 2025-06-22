@@ -12,6 +12,7 @@ import { SessionProvider } from "next-auth/react";
 import { prisma } from "@/db";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import AppWrapper from "@/Components/AppWrapper";
+import ModalRenderer from "@/Components/ModalRenderer";
 
 
 export const metadata = {
@@ -38,6 +39,7 @@ export default async function RootLayout({
 }) {
   const session = await auth();
 
+
   let sessionUserId: string | null = null;
 
   if (session?.user?.email) {
@@ -54,12 +56,13 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white dark:bg-black dark:text-white`}
       >
         <SessionProvider session={session}>
+
           <Theme>
             {sessionUserId ? (
               <>
-                {/* {modal} */}
+                <ModalRenderer modal={modal} />
                 <AppShell sessionUserId={sessionUserId}>
-                  <AppWrapper modal={modal}>
+                  <AppWrapper>
                     {children}
                   </AppWrapper>
                   <Toaster position="top-right" reverseOrder={false} />

@@ -108,9 +108,10 @@ model Follower {
   followingProfileId    String   @db.ObjectId
   followedProfileId     String   @db.ObjectId
   createdAt             DateTime @default(now())
-  // Relations
-  followerProfile Profile @relation("Followers", fields: [followingProfileId], references: [id])
-  followedProfile Profile @relation("Followings", fields: [followedProfileId], references: [id])
+
+  // Optional Relations
+  followerProfile Profile? @relation("Followers", fields: [followingProfileId], references: [id])
+  followedProfile Profile? @relation("Followings", fields: [followedProfileId], references: [id])
 }
 
 model Bookmark {

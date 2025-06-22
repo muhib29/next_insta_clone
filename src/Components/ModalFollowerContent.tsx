@@ -26,23 +26,34 @@ export default async function ModelFollowerContent({ username }: { username: str
 
 
   // Get the followers of the viewed profile
+  // const rawFollowers = await prisma.follower.findMany({
+  //   where: { followedProfileId: profile.id },
+  // });
+
   const rawFollowers = await prisma.follower.findMany({
     where: { followedProfileId: profile.id },
-  });
-
-  const followerIds = rawFollowers.map(f => f.followingProfileId);
-
-  const followerProfiles = await prisma.profile.findMany({
-    where: {
-      id: { in: followerIds },
-    },
-    select: {
-      id: true,
-      name: true,
-      username: true,
-      avatar: true,
+    include: {
+      followerProfile: true,
     },
   });
+
+  // const filteredFollowers = rawFollowers.filter(f => f.followerProfile !== null);
+
+
+
+  // const followerIds = rawFollowers.map(f => f.followingProfileId);
+
+  // const followerProfiles = await prisma.profile.findMany({
+  //   where: {
+  //     id: { in: followerIds },
+  //   },
+  //   select: {
+  //     id: true,
+  //     name: true,
+  //     username: true,
+  //     avatar: true,
+  //   },
+  // });
 
 
   return (
@@ -53,36 +64,38 @@ export default async function ModelFollowerContent({ username }: { username: str
       </div>
 
       <div className="overflow-y-auto">
-        {followerProfiles.length === 0 ? (
+        {rawFollowers.length === 0 ? (
           <div className="p-4 text-sm text-center text-gray-500 dark:text-neutral-400">
             No followers yet.
           </div>
         ) : (
-          followerProfiles.map((follower) => (
+          rawFollowers.map((f) => (
             <div
-              key={follower.id}
+              key={f.id}
               className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800"
             >
               <div className="flex items-center gap-3">
-                {follower.avatar && <Avatar src={follower.avatar} />}
+                {f.followerProfile?.avatar && <Avatar src={f.followerProfile.avatar} />}
                 <div className="flex flex-col">
-                  <span className="text-sm font-medium">{follower.username}</span>
-                  {follower.name && (
-                    <span className="text-xs text-white">{follower.name}</span>
+                  <span className="text-sm font-medium">
+                    {f.followerProfile?.username || "Deleted User"}
+                  </span>
+                  {f.followerProfile?.name && (
+                    <span className="text-xs text-white">{f.followerProfile.name}</span>
                   )}
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 {isOwnProfile ? (
-                  <RemoveFollowerButton followerId={follower.id} />
+                  <RemoveFollowerButton followerId={f.id} /> // ✅ CORRECT
                 ) : (
-                  <FollowButton profileIdToFollow={follower.id} ourFollow={null} />
+                  <FollowButton profileIdToFollow={f.followingProfileId} ourFollow={null} />
                 )}
               </div>
             </div>
           ))
-        )}
 
+        )}
       </div>
     </div>
   );
