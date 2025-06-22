@@ -145,7 +145,7 @@ export default function ChatList({
       {!compactView && (
         <Link
           href="/profile"
-          className="p-4 items-center gap-3 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg mb-3 transition flex"
+          className="p-4 md:pt-[15px] pt-[28px] items-center gap-3 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg mb-3 transition flex"
         >
           <div className="w-12 h-12 rounded-full overflow-hidden border border-zinc-200 dark:border-zinc-700 relative">
             <Image

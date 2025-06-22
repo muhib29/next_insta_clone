@@ -132,7 +132,7 @@ export default function ChatWindow({
   return (
     <div className="flex flex-col h-full bg-white dark:bg-black text-black dark:text-white">
       {/* Header */}
-      <div className="flex justify-between items-center p-3 sm:p-4 border-b border-zinc-200 dark:border-zinc-800">
+      <div className="flex justify-between items-center p-2 pt-[28px] sm:p-4 border-b border-zinc-200 dark:border-zinc-800">
         <div className="flex items-center gap-3">
           {isSmallScreen && (
             <button

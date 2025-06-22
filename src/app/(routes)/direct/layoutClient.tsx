@@ -59,7 +59,7 @@ export default function DirectLayoutClient({ children, currentUser, users }: Pro
     <div className="flex h-full w-full overflow-hidden pt-2 bg-white dark:bg-black text-black dark:text-white">
       {/* Mobile: show only one view */}
       {isMobile && (
-        <div className="w-full min-h-screen pb-[40px]">
+        <div className="w-full min-h-screen pb-[50px]">
           {isInbox && (
             <div className="w-full h-full overflow-hidden">
               <ChatList currentUser={currentUser} users={users} />

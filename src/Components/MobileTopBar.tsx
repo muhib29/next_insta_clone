@@ -10,7 +10,7 @@ export default function MobileTopBar({ userId }: { userId: string }) {
   const router = useRouter();
 
   return (
-    <div className="md:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-2 mb-4  bg-white dark:bg-black">
+    <div className="md:hidden fixed top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-2 mb-4  bg-white dark:bg-black">
       {/* Instagram Logo */}
       <Image
         src="/Instagram_logo.svg.png"
