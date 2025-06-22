@@ -348,9 +348,7 @@ export async function removeFollowerById(followerId: string) {
   }
 
   await prisma.follower.delete({ where: { id: followerId } });
-
-  // Revalidate the current page
-  revalidatePath("/"); // 👈 update this path to your current page route
+  revalidatePath("/");
 }
 
 export async function bookmarkPost(postId: string) {
@@ -455,34 +453,34 @@ export async function deletePost(postId: string) {
   });
 }
 
-export async function sendMessage(receiverId: string, text: string) {
-  const sender = await prisma.profile.findFirstOrThrow({
-    where: { email: await getSessionEmailOrThrow() },
-  });
+// export async function sendMessage(receiverId: string, text: string) {
+//   const sender = await prisma.profile.findFirstOrThrow({
+//     where: { email: await getSessionEmailOrThrow() },
+//   });
 
-  const message = await prisma.message.create({
-    data: {
-      text,
-      senderId: sender.id,
-      receiverId,
-    },
-  });
+//   const message = await prisma.message.create({
+//     data: {
+//       text,
+//       senderId: sender.id,
+//       receiverId,
+//     },
+//   });
 
-  const messagePayload = {
-    id: message.id,
-    senderId: sender.id,
-    receiverId,
-    text,
-    createdAt: message.createdAt,
-    senderUsername: sender.username,
-    senderAvatar: sender.avatar,
-  };
+//   const messagePayload = {
+//     id: message.id,
+//     senderId: sender.id,
+//     receiverId,
+//     text,
+//     createdAt: message.createdAt,
+//     senderUsername: sender.username,
+//     senderAvatar: sender.avatar,
+//   };
 
-  // 🔔 Send to the RECEIVER
-  await pusherServer.trigger(`chat-${receiverId}`, "new-message", messagePayload);
+//   // 🔔 Send to the RECEIVER
+//   await pusherServer.trigger(`chat-${receiverId}`, "new-message", messagePayload);
 
-  // 🔁 ALSO send to the SENDER (yourself)
-  await pusherServer.trigger(`chat-${sender.id}`, "new-message", messagePayload);
+//   // 🔁 ALSO send to the SENDER (yourself)
+//   await pusherServer.trigger(`chat-${sender.id}`, "new-message", messagePayload);
 
-  return message;
-}
+//   return message;
+// }

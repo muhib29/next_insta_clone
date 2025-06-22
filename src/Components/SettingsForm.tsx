@@ -167,7 +167,7 @@ export default function SettingsForm({ profile }: { profile: Profile | null }) {
 
 
   return (
-    <div className="max-w-md mx-auto py-4">
+    <div className="max-w-md mx-auto pb-24 px-4 sm:px-6 pt-4">
       <ToastContainer autoClose={3000} limit={1} hideProgressBar newestOnTop closeOnClick pauseOnHover theme="colored" />
       <form onSubmit={handleSubmit(onSubmit)}>
         <input type="hidden" name="avatar" value={avatarUrl || ""} />

@@ -7,6 +7,7 @@ import { Avatar } from "@radix-ui/themes";
 import LikesInfo from "@/Components/LikesInfo";
 import BookMarkButton from "./BookmarkButton";
 import { Profile, Post, Like, Bookmark } from "@prisma/client";
+import { usePathname } from 'next/navigation';
 
 type MediaType = "image" | "video";
 
@@ -42,6 +43,7 @@ export default function PostCard({
     PostCardProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [showControls, setShowControls] = useState(false);
+    const pathname = usePathname();
 
     useEffect(() => {
         if (typeof window !== "undefined") {
@@ -95,7 +97,12 @@ export default function PostCard({
 
             {/* Media */}
             <div className="relative">
-                <Link href={`/posts/${post.id}`}>
+                <Link
+                    href={{
+                        pathname: `/posts/${post.id}`,
+                        query: { from: pathname }
+                    }}
+                >
                     <div
                         {...(mediaCount > 1 ? swipeHandlers : {})}
                         className="w-full h-[500px] bg-black flex items-center justify-center overflow-hidden rounded-md relative"
@@ -113,15 +120,15 @@ export default function PostCard({
                                         controls={showControls}
                                     />
                                 ) : (
-   <Image
-  src={currentMedia.url}
-  alt={`Media ${currentIndex + 1} of ${mediaCount}`}
-  fill
-  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 800px"
-  placeholder="blur"
-  blurDataURL="/placeholder.jpg" // or a tiny blurred version of your image
-  className="object-contain rounded-md"
-/>
+                                    <Image
+                                        src={currentMedia.url}
+                                        alt={`Media ${currentIndex + 1} of ${mediaCount}`}
+                                        fill
+                                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 800px"
+                                        placeholder="blur"
+                                        blurDataURL="/blur.png" // or a tiny blurred version of your image
+                                        className="object-contain rounded-md"
+                                    />
 
 
                                 )}
@@ -174,7 +181,11 @@ export default function PostCard({
             <div className="flex justify-between items-center px-4 pt-3">
                 <div className="flex items-center gap-2 text-zinc-800 dark:text-white">
                     <LikesInfo post={post} showText={false} sessionLike={like} mutate={async () => { }} />
-                    <Link href={`/posts/${post.id}`} className="hover:opacity-70">
+                    <Link   
+                        href={{
+                            pathname: `/posts/${post.id}`,
+                            query: { from: pathname }
+                        }} className="hover:opacity-70">
                         <MessageCircle className="w-6 h-6" />
                     </Link>
                 </div>
@@ -189,7 +200,12 @@ export default function PostCard({
                 <p className="text-sm leading-snug text-zinc-800 dark:text-white">
                     <span className="font-semibold">{profile?.username}</span> {post.description}
                 </p>
-                <Link href={`/posts/${post.id}`} className="text-sm text-zinc-600 dark:text-zinc-400 mt-1 block">
+                <Link
+                    href={{
+                        pathname: `/posts/${post.id}`,
+                        query: { from: pathname }
+                    }}
+                    className="text-sm text-zinc-600 dark:text-zinc-400 mt-1 block">
                     {post._count.comments > 0 ? (
                         <span>View all {post._count.comments} comments</span>
                     ) : (

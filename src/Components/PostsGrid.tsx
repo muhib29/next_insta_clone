@@ -7,6 +7,7 @@ import { HeartIcon, MessageCircle, TrashIcon } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import Masonry from 'react-masonry-css';
+import { usePathname } from 'next/navigation';
 
 export type ExtendedPost = Post & {
   media: {
@@ -26,6 +27,8 @@ export default function PostGrid({
   posts: ExtendedPost[];
   currentUserId: string;
 }) {
+
+  const pathname = usePathname();
   function handleDelete(postId: string) {
     toast.custom(
       (t) => (
@@ -88,7 +91,10 @@ export default function PostGrid({
           return (
             <div key={post.id} className="relative group">
               <Link
-                href={`/posts/${post.id}`}
+                href={{
+                  pathname: `/posts/${post.id}`,
+                  query: { from: pathname }, 
+                }}
                 className="block mb-4 overflow-hidden rounded-lg shadow-lg"
               >
                 {/* Only render first media (image or video) */}

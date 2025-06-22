@@ -6,6 +6,7 @@ import { deletePost } from '@/action';
 import { HeartIcon, MessageCircle, TrashIcon } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 type ExtendedPost = Post & {
   media: {
@@ -33,13 +34,13 @@ export default function SearchResults({
   onCancel: () => void;
   currentUserId: string;
 }) {
+  const pathname = usePathname();
   function handleDelete(postId: string) {
     toast.custom(
       (t) => (
         <div
-          className={`max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5 ${
-            t.visible ? 'animate-enter' : 'animate-leave'
-          }`}
+          className={`max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5 ${t.visible ? 'animate-enter' : 'animate-leave'
+            }`}
           role="alert"
           aria-live="assertive"
         >
@@ -81,12 +82,12 @@ export default function SearchResults({
   return (
     <div className="mt-4 w-full space-y-8">
       <div className="space-y-1">
-        <h3 className="text-lg font-bold dark:text-zinc-300 text-white">
+        <h3 className="text-lg font-bold dark:text-zinc-300 text-black">
           Results for <span className="italic text-purple-600">{`"${query}"`}</span>
         </h3>
         {loading && (
           <div
-            className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400"
+            className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-400"
             role="status"
             aria-live="polite"
           >
@@ -100,11 +101,11 @@ export default function SearchResults({
         <>
           {/* Profiles */}
           <section>
-            <h4 className="text-sm font-semibold text-white dark:text-zinc-300 mb-3">
+            <h4 className="text-sm font-semibold text-black  dark:text-zinc-300 mb-3">
               Profiles
             </h4>
             {profiles.length === 0 ? (
-              <p className="text-sm italic text-zinc-200 dark:text-zinc-400">No profiles found.</p>
+              <p className="text-sm italic text-zinc-400 dark:text-zinc-400">No profiles found.</p>
             ) : (
               <ul className="space-y-3">
                 {profiles.map((profile) => (
@@ -136,11 +137,11 @@ export default function SearchResults({
 
           {/* Posts */}
           <section>
-            <h4 className="text-sm font-semibold text-white dark:text-zinc-300 mb-3 mt-4">
+            <h4 className="text-sm font-semibold text-black dark:text-zinc-300 mb-3 mt-4">
               Posts
             </h4>
             {posts.length === 0 ? (
-              <p className="text-sm italic text-zinc-200 dark:text-zinc-400">No posts found.</p>
+              <p className="text-sm italic text-zinc-400 dark:text-zinc-400">No posts found.</p>
             ) : (
               <div className="max-w-4xl mx-auto px-4 mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {posts.map((post) => {
@@ -149,7 +150,10 @@ export default function SearchResults({
                   return (
                     <div key={post.id} className="relative group rounded-lg overflow-hidden shadow-lg">
                       <Link
-                        href={`/posts/${post.id}`}
+                        href={{
+                          pathname: `/posts/${post.id}`,
+                          query: { from: pathname }
+                        }}
                         className="block"
                         onClick={onCancel}
                         aria-label={`View post by user ${post.author}`}

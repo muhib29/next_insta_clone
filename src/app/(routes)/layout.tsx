@@ -11,7 +11,20 @@ import Image from "next/image";
 import { SessionProvider } from "next-auth/react";
 import { prisma } from "@/db";
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import AppWrapper from "@/Components/AppWrapper";
 
+
+export const metadata = {
+  title: "Instagram",
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/icons8-instagram-windows-11-color-60.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons8-instagram-windows-11-color-512.png", sizes: "16x16", type: "image/png" },
+    ],
+    apple: "/icons8-instagram-windows-11-color-57.png",
+  }
+};
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -44,9 +57,11 @@ export default async function RootLayout({
           <Theme>
             {sessionUserId ? (
               <>
-                {modal}
+                {/* {modal} */}
                 <AppShell sessionUserId={sessionUserId}>
-                  {children}
+                  <AppWrapper modal={modal}>
+                    {children}
+                  </AppWrapper>
                   <Toaster position="top-right" reverseOrder={false} />
                 </AppShell>
               </>
@@ -87,7 +102,7 @@ function LoginScreen() {
                 height={150}
                 className="dark:invert"
                 priority
-              />  
+              />
             </div>
 
             <form
@@ -138,7 +153,7 @@ function LoginScreen() {
             <option value="fr">Français</option>
             <option value="de">Deutsch</option>
           </select>
-            <p className="py-1">© 2025 Instagram from Meta</p>
+          <p className="py-1">© 2025 Instagram from Meta</p>
         </div>
       </footer>
     </div>

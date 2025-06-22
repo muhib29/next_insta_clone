@@ -2,7 +2,7 @@
 import { Button, TextArea } from "@radix-ui/themes";
 import { CloudUploadIcon, SendIcon } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { postEntry } from "@/action";
 import Image from "next/image";
 import { upload } from '@vercel/blob/client';
@@ -18,6 +18,9 @@ export default function CreatePage() {
   const [uploadedMedia, setUploadedMedia] = useState<
     { url: string; type: 'image' | 'video' }[]
   >([]);
+  
+const pathname = usePathname
+();
 
   // *** REVISED UPLOAD LOGIC ***
   useEffect(() => {
@@ -99,7 +102,8 @@ export default function CreatePage() {
         formData.append("description", description);
 
         const id = await postEntry(formData);
-        router.push(`/posts/${id}`);
+        // router.push(`/posts/${id}`);
+         router.push(`/posts/${id}?from=${encodeURIComponent(pathname)}`);
         router.refresh();
       }}
     >

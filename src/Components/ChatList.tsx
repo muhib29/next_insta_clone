@@ -6,25 +6,13 @@ import { useRouter } from "next/navigation";
 import { pusherClient } from "../../lib/pusher/client";
 import Image from "next/image";
 
-// Strong types
-type UserWithChatInfo = {
+type ChatUser = {
   id: string;
   username: string;
   avatar: string | null;
-  lastMessageAt: Date | null;
   lastMessageText: string | null;
+  lastMessageAt: Date | string | null;
   hasUnread: boolean;
-};
-
-type ChatMessage = {
-  senderId: string;
-  receiverId: string;
-  senderUsername?: string;
-  receiverUsername?: string;
-  senderAvatar?: string;
-  receiverAvatar?: string;
-  text: string;
-  createdAt: string | Date;
 };
 
 type CurrentUser = {
@@ -34,28 +22,45 @@ type CurrentUser = {
   name: string | null;
 };
 
-export default function ChatList({
-  currentUser,
-  compactView = false,
-  onClose,
-}: {
+type Props = {
+  users: ChatUser[];
   currentUser: CurrentUser;
   compactView?: boolean;
   onClose?: () => void;
-}) {
-  const [chatUsers, setChatUsers] = useState<UserWithChatInfo[]>([]);
+};
+
+type NewMessageEvent = {
+  text: string;
+  createdAt: string;
+  senderId: string;
+  senderUsername: string;
+  senderAvatar: string | null;
+  receiverId: string;
+  receiverUsername: string;
+  receiverAvatar: string | null;
+};
+
+type MessagesReadEvent = {
+  senderId: string;
+};
+
+export default function ChatList({
+  users,
+  currentUser,
+  compactView = false,
+  onClose,
+}: Props) {
+  const [chatUsers, setChatUsers] = useState<ChatUser[]>(users);
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
 
   useEffect(() => {
     const channel = pusherClient.subscribe(`chat-${currentUser.id}`);
 
-    channel.bind("new-message", (data: ChatMessage) => {
+    channel.bind("new-message", (data: NewMessageEvent) => {
       const partnerId = data.senderId === currentUser.id ? data.receiverId : data.senderId;
-      const partnerUsername =
-        data.senderId === currentUser.id ? data.receiverUsername : data.senderUsername;
-      const partnerAvatar =
-        data.senderId === currentUser.id ? data.receiverAvatar : data.senderAvatar;
+      const partnerUsername = data.senderId === currentUser.id ? data.receiverUsername : data.senderUsername;
+      const partnerAvatar = data.senderId === currentUser.id ? data.receiverAvatar : data.senderAvatar;
 
       setChatUsers((prevUsers) => {
         const existingUser = prevUsers.find((u) => u.id === partnerId);
@@ -85,15 +90,17 @@ export default function ChatList({
 
         return updated.sort(
           (a, b) =>
-            new Date(b.lastMessageAt ?? 0).getTime() - new Date(a.lastMessageAt ?? 0).getTime()
+            new Date(b.lastMessageAt ?? 0).getTime() -
+            new Date(a.lastMessageAt ?? 0).getTime()
         );
       });
     });
 
-    channel.bind("messages-read", (data: { senderId: string }) => {
+    channel.bind("messages-read", (data: MessagesReadEvent) => {
+      const { senderId } = data;
       setChatUsers((prevUsers) =>
         prevUsers.map((user) =>
-          user.id === data.senderId ? { ...user, hasUnread: false } : user
+          user.id === senderId ? { ...user, hasUnread: false } : user
         )
       );
     });
@@ -102,7 +109,7 @@ export default function ChatList({
       channel.unbind_all();
       channel.unsubscribe();
     };
-  }, [currentUser.id]); // ✅ fixed missing dependency
+  }, [currentUser.id]); // ✅ Fix missing dependency
 
   function formatTimeAgo(date: Date) {
     const diff = Date.now() - date.getTime();
@@ -150,6 +157,7 @@ export default function ChatList({
               priority
             />
           </div>
+
           <div className="space-y-0.5">
             <p className="font-semibold">{currentUser.username}</p>
             <p className="text-sm text-zinc-500 dark:text-zinc-400">

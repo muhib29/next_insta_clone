@@ -8,6 +8,7 @@ import FollowButton from "@/Components/FollowButton";
 import { Follower } from "@prisma/client";
 import { pusherClient } from "../../../../lib/pusher/client";
 
+import { usePathname } from 'next/navigation';
 
 type Notification = {
     id: string;
@@ -30,6 +31,7 @@ export default function NotificationClient({
 }) {
 
     const [notifications, setNotifications] = useState<Notification[]>(initial);
+    const pathname = usePathname();
 
 
 
@@ -100,7 +102,11 @@ export default function NotificationClient({
                             />
                         ) : n.postId ? (
                             <Link
-                                href={`/posts/${n.postId}`}
+                                // href={`/posts/${n.postId}`}
+                                href={{
+                                    pathname: `/posts/${n.postId}`,
+                                    query: {from: pathname}
+                                }}
                                 className="text-sm text-blue-500 hover:underline"
                             >
                                 View

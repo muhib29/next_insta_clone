@@ -6,6 +6,7 @@ import { deletePost } from '@/action';
 import { HeartIcon, MessageCircle, TrashIcon } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 type ExtendedPost = Post & {
   media: {
@@ -33,6 +34,7 @@ export default function SearchResultsMobile({
   onCancel: () => void;
   currentUserId: string;
 }) {
+  const pathname = usePathname();
   function handleDelete(postId: string) {
     toast.custom(
       (t) => (
@@ -149,7 +151,10 @@ export default function SearchResultsMobile({
                   return (
                     <div key={post.id} className="relative group rounded-lg overflow-hidden shadow-lg">
                       <Link
-                        href={`/posts/${post.id}`}
+                        href={{
+                          pathname: `/posts/${post.id}`,
+                          query: { from: pathname }
+                        }}
                         className="block"
                         onClick={onCancel}
                         aria-label={`View post by user ${post.author}`}

@@ -62,7 +62,7 @@ export default function DirectLayoutClient({ children, currentUser, users }: Pro
         <div className="w-full min-h-screen pb-[40px]">
           {isInbox && (
             <div className="w-full h-full overflow-hidden">
-              <ChatList currentUser={currentUser}  />
+              <ChatList currentUser={currentUser} users={users} />
             </div>
           )}
           {isChat && (
@@ -80,6 +80,7 @@ export default function DirectLayoutClient({ children, currentUser, users }: Pro
           >
             <ChatList
               currentUser={currentUser}
+              users={users}
               compactView={!showFullSidebar}
             />
 
@@ -106,7 +107,7 @@ export default function DirectLayoutClient({ children, currentUser, users }: Pro
       {isDesktop && (
         <>
           <aside className="w-[350px] h-full border-r border-zinc-300 dark:border-zinc-800">
-            <ChatList currentUser={currentUser}  />
+            <ChatList currentUser={currentUser} users={users} />
           </aside>
           <main className="flex-1 h-full overflow-hidden">{children}</main>
         </>
