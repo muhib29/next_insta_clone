@@ -6,14 +6,18 @@ import { Theme } from "@radix-ui/themes";
 import ThemeObserver from "@/Components/ThemeObserver";
 import { Toaster } from "react-hot-toast";
 import AppShell from "@/Components/AppShell";
-import { auth, signIn } from "@/auth";
-import Image from "next/image";
-import { SessionProvider } from "next-auth/react";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 import { prisma } from "@/db";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import AppWrapper from "@/Components/AppWrapper";
 import ModalRenderer from "@/Components/ModalRenderer";
+import Image from "next/image";
+import LoginButton from "@/Components/LoginButton";
+import { SessionProvider } from "next-auth/react";
 
+const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
+const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata = {
   title: "Instagram",
@@ -24,11 +28,8 @@ export const metadata = {
       { url: "/icons8-instagram-windows-11-color-512.png", sizes: "16x16", type: "image/png" },
     ],
     apple: "/icons8-instagram-windows-11-color-57.png",
-  }
+  },
 };
-
-const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
-const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export default async function RootLayout({
   children,
@@ -37,47 +38,43 @@ export default async function RootLayout({
   children: React.ReactNode;
   modal: React.ReactNode;
 }) {
-  const session = await auth();
-
-
+ const session = await auth();
   let sessionUserId: string | null = null;
 
   if (session?.user?.email) {
-    const profile = await prisma.profile.findUnique({
+    let profile = await prisma.profile.findUnique({
       where: { email: session.user.email },
       select: { id: true },
     });
-    sessionUserId = profile?.id || null;
+
+    sessionUserId = profile?.id ?? null;
   }
+
 
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white dark:bg-black dark:text-white`}
-      >
-        <SessionProvider session={session}>
-
-          <Theme>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white dark:bg-black dark:text-white`}>
+        <Theme>
+          <SessionProvider session={session}> {/* ✅ WRAP YOUR APP HERE */}
             {sessionUserId ? (
               <>
                 <ModalRenderer modal={modal} />
                 <AppShell sessionUserId={sessionUserId}>
-                  <AppWrapper>
-                    {children}
-                  </AppWrapper>
+                  <AppWrapper>{children}</AppWrapper>
                   <Toaster position="top-right" reverseOrder={false} />
                 </AppShell>
               </>
             ) : (
               <LoginScreen />
             )}
-          </Theme>
-          <ThemeObserver />
-        </SessionProvider>
+          </SessionProvider>
+        </Theme>
+        <ThemeObserver />
       </body>
     </html>
   );
 }
+
 function LoginScreen() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-black">
@@ -108,16 +105,8 @@ function LoginScreen() {
               />
             </div>
 
-            <form
-              action={async () => {
-                "use server";
-                await signIn("google");
-              }}
-            >
-              <button className="w-full bg-black text-white dark:bg-white dark:text-black font-medium py-3 rounded-md hover:bg-gray-800 dark:hover:bg-gray-200 transition duration-200">
-                Sign in with Google
-              </button>
-            </form>
+            {/* Sign In Button */}
+            <LoginButton />
 
             <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
               Don’t have an account?{" "}
