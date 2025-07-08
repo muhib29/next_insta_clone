@@ -7,7 +7,6 @@ import ThemeObserver from "@/Components/ThemeObserver";
 import { Toaster } from "react-hot-toast";
 import AppShell from "@/Components/AppShell";
 import { auth } from "@/auth";
-import { redirect } from "next/navigation";
 import { prisma } from "@/db";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import AppWrapper from "@/Components/AppWrapper";
@@ -42,7 +41,7 @@ export default async function RootLayout({
   let sessionUserId: string | null = null;
 
   if (session?.user?.email) {
-    let profile = await prisma.profile.findUnique({
+    const profile = await prisma.profile.findUnique({
       where: { email: session.user.email },
       select: { id: true },
     });
